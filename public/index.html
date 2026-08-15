@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>ระบบเก็บประวัติซ่อมบำรุงหม้อแปลงไฟฟ้า</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+  <!-- ส่วนหัวเว็บ -->
+  <header class="bg-slate-800 text-white p-6 shadow-md flex justify-between items-center">
+    <div>
+      <h1 class="text-2xl font-bold">⚡ ระบบเก็บประวัติซ่อมบำรุงหม้อแปลงไฟฟ้า</h1>
+      <p class="text-slate-300">อำเภอเมืองนครปฐม จังหวัดนครปฐม</p>
+    </div>
+    <div class="text-right">
+      <p id="userInfo" class="text-sm text-slate-300">กำลังโหลด...</p>
+      <button onclick="logout()" class="mt-1 bg-red-600 hover:bg-red-700 text-white text-sm px-3 py-1 rounded">
+        ออกจากระบบ
+      </button>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto p-6">
+
+    <!-- การ์ดสรุปข้อมูลด้านบน -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div class="bg-white rounded-lg shadow p-4 border-l-4 border-blue-500">
+        <p class="text-gray-500 text-sm">หม้อแปลงทั้งหมด</p>
+        <p id="totalCount" class="text-3xl font-bold text-slate-800">-</p>
+      </div>
+      <div class="bg-white rounded-lg shadow p-4 border-l-4 border-green-500">
+        <p class="text-gray-500 text-sm">สถานะปกติ</p>
+        <p id="normalCount" class="text-3xl font-bold text-green-600">-</p>
+      </div>
+      <div class="bg-white rounded-lg shadow p-4 border-l-4 border-red-500">
+        <p class="text-gray-500 text-sm">ต้องซ่อม / รอเปลี่ยน</p>
+        <p id="issueCount" class="text-3xl font-bold text-red-600">-</p>
+      </div>
+    </div>
+    
+    <!-- ปุ่มเพิ่มหม้อแปลงใหม่ -->
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-xl font-semibold text-slate-800">รายการหม้อแปลง</h2>
+      <button id="addBtn" onclick="openAddModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow">
+        + เพิ่มหม้อแปลง
+      </button>
+    </div>
+
+    <!-- ตารางแสดงข้อมูล -->
+    <div class="bg-white rounded-lg shadow overflow-x-auto">
+      <table class="w-full text-left">
+        <thead class="bg-slate-700 text-white">
+          <tr>
+            <th class="p-3">รหัส</th>
+            <th class="p-3">ตำบล</th>
+            <th class="p-3">ยี่ห้อ</th>
+            <th class="p-3">ขนาด (kVA)</th>
+            <th class="p-3">วันที่ติดตั้ง</th>
+            <th class="p-3">สถานะ</th>
+            <th class="p-3">จัดการ</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+          <!-- ข้อมูลจะถูกเติมตรงนี้ผ่าน JavaScript -->
+        </tbody>
+      </table>
+    </div>
+
+  </main>
+
+  <!-- Modal (หน้าต่างป๊อปอัพ) สำหรับเพิ่ม/แก้ไขข้อมูล -->
+  <div id="formModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+      <h3 id="modalTitle" class="text-lg font-semibold mb-4">เพิ่มหม้อแปลงใหม่</h3>
+
+      <form id="transformerForm" class="space-y-3">
+        <input type="hidden" id="formId">
+
+        <div>
+          <label class="block text-sm text-gray-600 mb-1">รหัสหม้อแปลง</label>
+          <input type="text" id="formCode" required class="w-full border rounded px-3 py-2">
+        </div>
+        <div>
+          <label class="block text-sm text-gray-600 mb-1">ชื่อตำบล</label>
+          <input type="text" id="formTambon" required class="w-full border rounded px-3 py-2">
+        </div>
+        <div>
+          <label class="block text-sm text-gray-600 mb-1">ยี่ห้อ</label>
+          <input type="text" id="formBrand" class="w-full border rounded px-3 py-2">
+        </div>
+        <div>
+          <label class="block text-sm text-gray-600 mb-1">ขนาด (kVA)</label>
+          <input type="number" id="formKva" class="w-full border rounded px-3 py-2">
+        </div>
+        <div>
+          <label class="block text-sm text-gray-600 mb-1">วันที่ติดตั้ง</label>
+          <input type="date" id="formInstallDate" class="w-full border rounded px-3 py-2">
+        </div>
+        <div>
+          <label class="block text-sm text-gray-600 mb-1">สถานะ</label>
+          <select id="formStatus" class="w-full border rounded px-3 py-2">
+            <option value="ปกติ">ปกติ</option>
+            <option value="ต้องซ่อม">ต้องซ่อม</option>
+            <option value="รอเปลี่ยน">รอเปลี่ยน</option>
+          </select>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="closeModal()" class="px-4 py-2 rounded border">ยกเลิก</button>
+          <button type="submit" class="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700">บันทึก</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // เก็บข้อมูลหม้อแปลงทั้งหมดไว้ในตัวแปรนี้ เพื่อใช้อ้างอิงตอนแก้ไข
+    let transformersData = [];
+
+    // ฟังก์ชันดึงข้อมูลจาก API แล้วนำมาแสดงในตาราง
+    async function loadTransformers() {
+      const response = await fetch('/api/transformers');
+      const data = await response.json();
+      transformersData = data;
+
+      const tableBody = document.getElementById('tableBody');
+      tableBody.innerHTML = '';
+
+      let normal = 0;
+      let issue = 0;
+
+      data.forEach(item => {
+        if (item.status === 'ปกติ') normal++;
+        else issue++;
+
+        let statusColor = 'bg-green-100 text-green-700';
+        if (item.status === 'ต้องซ่อม') statusColor = 'bg-red-100 text-red-700';
+        else if (item.status === 'รอเปลี่ยน') statusColor = 'bg-yellow-100 text-yellow-700';
+
+        const row = document.createElement('tr');
+        row.className = 'border-b hover:bg-gray-50';
+        row.innerHTML = `
+          <td class="p-3">${item.code}</td>
+          <td class="p-3">${item.tambon_name}</td>
+          <td class="p-3">${item.brand || '-'}</td>
+          <td class="p-3">${item.capacity_kva || '-'}</td>
+          <td class="p-3">${item.install_date || '-'}</td>
+          <td class="p-3"><span class="px-2 py-1 rounded-full text-xs ${statusColor}">${item.status}</span></td>
+          <td class="p-3">
+            <a href="maintenance.html?id=${item.id}&name=${encodeURIComponent(item.tambon_name)}" class="text-green-600 hover:underline mr-2">ประวัติซ่อม</a>
+            ${currentUserRole === 'admin' ? `
+            <button onclick="openEditModal(${item.id})" class="text-blue-600 hover:underline mr-2">แก้ไข</button>
+            <button onclick="deleteTransformer(${item.id})" class="text-red-600 hover:underline">ลบ</button>
+          ` : ''}
+</td>
+        `;
+        tableBody.appendChild(row);
+      });
+
+      document.getElementById('totalCount').textContent = data.length;
+      document.getElementById('normalCount').textContent = normal;
+      document.getElementById('issueCount').textContent = issue;
+    }
+
+    function openAddModal() {
+      document.getElementById('modalTitle').textContent = 'เพิ่มหม้อแปลงใหม่';
+      document.getElementById('transformerForm').reset();
+      document.getElementById('formId').value = '';
+      document.getElementById('formModal').classList.remove('hidden');
+    }
+
+    function openEditModal(id) {
+      const item = transformersData.find(t => t.id === id);
+      document.getElementById('modalTitle').textContent = 'แก้ไขข้อมูลหม้อแปลง';
+      document.getElementById('formId').value = item.id;
+      document.getElementById('formCode').value = item.code;
+      document.getElementById('formTambon').value = item.tambon_name;
+      document.getElementById('formBrand').value = item.brand || '';
+      document.getElementById('formKva').value = item.capacity_kva || '';
+      document.getElementById('formInstallDate').value = item.install_date || '';
+      document.getElementById('formStatus').value = item.status;
+      document.getElementById('formModal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('formModal').classList.add('hidden');
+    }
+
+    document.getElementById('transformerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const id = document.getElementById('formId').value;
+
+      const payload = {
+        code: document.getElementById('formCode').value,
+        tambon_name: document.getElementById('formTambon').value,
+        brand: document.getElementById('formBrand').value,
+        capacity_kva: document.getElementById('formKva').value,
+        install_date: document.getElementById('formInstallDate').value,
+        status: document.getElementById('formStatus').value,
+      };
+
+      if (id) {
+        await fetch(`/api/transformers/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+      } else {
+        await fetch('/api/transformers', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+      }
+
+      closeModal();
+      loadTransformers();
+    });
+
+    async function deleteTransformer(id) {
+      if (!confirm('ยืนยันการลบข้อมูลนี้หรือไม่?')) return;
+
+      await fetch(`/api/transformers/${id}`, { method: 'DELETE' });
+      loadTransformers();
+    }
+
+    // ฟังก์ชันเช็คว่า Login อยู่หรือไม่ ก่อนแสดงเนื้อหาในหน้านี้
+    // เก็บ role ของผู้ใช้ที่ login อยู่ไว้ในตัวแปรนี้ ใช้เช็คทั่วทั้งหน้า
+let currentUserRole = null;
+
+async function checkAuth() {
+  const response = await fetch('/api/me');
+
+  if (!response.ok) {
+    window.location.href = 'login.html';
+    return;
+  }
+
+  const user = await response.json();
+  currentUserRole = user.role; // เก็บ role ไว้ใช้ต่อ
+  document.getElementById('userInfo').textContent = `${user.full_name} (${user.role === 'admin' ? 'แอดมิน' : 'ช่างซ่อมบำรุง'})`;
+
+  // ถ้าไม่ใช่ admin ให้ซ่อนปุ่ม "+ เพิ่มหม้อแปลง"
+  if (currentUserRole !== 'admin') {
+    document.getElementById('addBtn').classList.add('hidden');
+  }
+
+  loadTransformers();
+}
+
+    // ฟังก์ชัน Logout
+    async function logout() {
+      await fetch('/api/logout', { method: 'POST' });
+      window.location.href = 'login.html';
+    }
+
+    // เรียกเช็ค Login ทันทีที่หน้าเว็บเปิดขึ้นมา
+checkAuth();
+
+// ป้องกันปัญหา: กดปุ่มย้อนกลับ (back) แล้วเห็นหน้าเดิมค้างอยู่ทั้งที่ Logout ไปแล้ว
+// เหตุการณ์ pageshow จะทำงานทุกครั้งที่หน้าเว็บถูกเรียกคืนจาก browser cache
+window.addEventListener('pageshow', function(event) {
+  // event.persisted เป็น true เมื่อหน้าเว็บถูกดึงมาจาก cache (ไม่ใช่โหลดใหม่)
+  if (event.persisted) {
+    checkAuth(); // บังคับเช็ค Login ใหม่ทันที
+  }
+});
+  </script>
+
+</body>
+</html>

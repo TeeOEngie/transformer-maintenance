@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>ประวัติซ่อมบำรุง</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+  <!-- ส่วนหัวเว็บ -->
+  <header class="bg-slate-800 text-white p-6 shadow-md">
+    <a href="index.html" class="text-slate-300 text-sm hover:underline">&larr; กลับหน้ารายการหม้อแปลง</a>
+    <h1 id="pageTitle" class="text-2xl font-bold mt-1">ประวัติซ่อมบำรุง</h1>
+  </header>
+
+  <main class="max-w-4xl mx-auto p-6">
+
+    <!-- ปุ่มเพิ่มประวัติซ่อมใหม่ -->
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-xl font-semibold text-slate-800">ประวัติการซ่อมบำรุงทั้งหมด</h2>
+      <button onclick="openAddModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow">
+        + บันทึกงานซ่อม
+      </button>
+    </div>
+
+    <!-- รายการประวัติซ่อม แสดงเป็นการ์ด -->
+    <div id="recordList" class="space-y-3">
+      <!-- ข้อมูลจะถูกเติมตรงนี้ผ่าน JavaScript -->
+    </div>
+
+    <p id="emptyMsg" class="text-gray-400 text-center py-8 hidden">ยังไม่มีประวัติการซ่อมบำรุง</p>
+
+  </main>
+
+  <!-- Modal สำหรับบันทึกงานซ่อมใหม่ -->
+  <div id="formModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+      <h3 class="text-lg font-semibold mb-4">บันทึกงานซ่อมบำรุงใหม่</h3>
+
+      <form id="maintenanceForm" class="space-y-3">
+        <div>
+          <label class="block text-sm text-gray-600 mb-1">วันที่ซ่อม</label>
+          <input type="date" id="formDate" required class="w-full border rounded px-3 py-2">
+        </div>
+        <div>
+          <label class="block text-sm text-gray-600 mb-1">ประเภทงาน</label>
+          <select id="formType" class="w-full border rounded px-3 py-2">
+            <option value="ตามแผน">ซ่อมบำรุงตามแผน</option>
+            <option value="ฉุกเฉิน">ซ่อมฉุกเฉิน</option>
+            <option value="ตรวจสอบ">ตรวจสอบทั่วไป</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm text-gray-600 mb-1">รายละเอียดปัญหา</label>
+          <textarea id="formProblem" rows="2" class="w-full border rounded px-3 py-2"></textarea>
+        </div>
+        <div>
+          <label class="block text-sm text-gray-600 mb-1">วิธีแก้ไข / สิ่งที่ทำ</label>
+          <textarea id="formAction" rows="2" class="w-full border rounded px-3 py-2"></textarea>
+        </div>
+        <div>
+          <label class="block text-sm text-gray-600 mb-1">สถานะ</label>
+          <select id="formStatus" class="w-full border rounded px-3 py-2">
+            <option value="เสร็จสิ้น">เสร็จสิ้น</option>
+            <option value="รอดำเนินการ">รอดำเนินการ</option>
+          </select>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="closeModal()" class="px-4 py-2 rounded border">ยกเลิก</button>
+          <button type="submit" class="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700">บันทึก</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // ดึงค่า id และชื่อตำบลของหม้อแปลง จาก URL (ส่งมาจากหน้า index.html)
+    const urlParams = new URLSearchParams(window.location.search);
+    const transformerId = urlParams.get('id');
+    const transformerName = urlParams.get('name');
+
+    // แสดงชื่อตำบลในหัวข้อหน้า
+    document.getElementById('pageTitle').textContent = `ประวัติซ่อมบำรุง: ${transformerName || ''}`;
+
+    // ฟังก์ชันดึงประวัติซ่อมของหม้อแปลงตัวนี้มาแสดง
+    async function loadRecords() {
+      const response = await fetch(`/api/maintenance/${transformerId}`);
+      const data = await response.json();
+
+      const recordList = document.getElementById('recordList');
+      const emptyMsg = document.getElementById('emptyMsg');
+      recordList.innerHTML = '';
+
+      if (data.length === 0) {
+        emptyMsg.classList.remove('hidden');
+        return;
+      }
+      emptyMsg.classList.add('hidden');
+
+      data.forEach(item => {
+        let typeColor = 'bg-blue-100 text-blue-700';
+        if (item.maintenance_type === 'ฉุกเฉิน') typeColor = 'bg-red-100 text-red-700';
+
+        let statusColor = item.status === 'เสร็จสิ้น' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700';
+
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-lg shadow p-4';
+        card.innerHTML = `
+          <div class="flex justify-between items-start mb-2">
+            <div>
+              <span class="px-2 py-1 rounded-full text-xs ${typeColor}">${item.maintenance_type}</span>
+              <span class="px-2 py-1 rounded-full text-xs ${statusColor} ml-1">${item.status}</span>
+            </div>
+            <span class="text-sm text-gray-400">${item.maintenance_date}</span>
+          </div>
+          <p class="text-sm text-gray-700"><b>ปัญหา:</b> ${item.problem_description || '-'}</p>
+          <p class="text-sm text-gray-700"><b>การแก้ไข:</b> ${item.action_taken || '-'}</p>
+          ${currentUserRole === 'admin' ? `
+            <div class="text-right mt-2">
+              <button onclick="deleteRecord(${item.id})" class="text-red-600 text-sm hover:underline">ลบรายการนี้</button>
+            </div>
+          ` : ''}
+        `;
+        recordList.appendChild(card);
+      });
+    }
+
+    function openAddModal() {
+      document.getElementById('maintenanceForm').reset();
+      document.getElementById('formModal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('formModal').classList.add('hidden');
+    }
+
+    // เมื่อกด submit ฟอร์มบันทึกงานซ่อม
+    document.getElementById('maintenanceForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const payload = {
+        transformer_id: transformerId,
+        maintenance_date: document.getElementById('formDate').value,
+        maintenance_type: document.getElementById('formType').value,
+        problem_description: document.getElementById('formProblem').value,
+        action_taken: document.getElementById('formAction').value,
+        status: document.getElementById('formStatus').value,
+      };
+
+      await fetch('/api/maintenance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      closeModal();
+      loadRecords();
+    });
+
+    // เก็บ role ของผู้ใช้ที่ login อยู่ไว้ใช้เช็คว่าเป็น admin หรือไม่
+let currentUserRole = null;
+
+// ฟังก์ชันเช็คว่า Login อยู่หรือไม่ ก่อนแสดงเนื้อหาในหน้านี้
+async function checkAuth() {
+  const response = await fetch('/api/me');
+  if (!response.ok) {
+    window.location.href = 'login.html';
+    return;
+  }
+  const user = await response.json();
+  currentUserRole = user.role;
+  loadRecords();
+}
+
+// ฟังก์ชันลบประวัติการซ่อม (เฉพาะ admin)
+async function deleteRecord(id) {
+  if (!confirm('ยืนยันการลบประวัติซ่อมนี้หรือไม่?')) return;
+
+  await fetch(`/api/maintenance/${id}`, { method: 'DELETE' });
+  loadRecords(); // โหลดข้อมูลใหม่หลังลบเสร็จ
+}
+
+    checkAuth();
+
+    // ป้องกันปัญหาเดียวกัน: กดย้อนกลับแล้วเห็นหน้าเดิมค้างอยู่
+    window.addEventListener('pageshow', function(event) {
+      if (event.persisted) {
+        checkAuth();
+  }
+});
+  </script>
+
+</body>
+</html>
