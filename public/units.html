@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>เครื่องปรับอากาศ</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-yellow-50 min-h-screen">
+
+  <!-- ส่วนหัวเว็บ -->
+  <header class="bg-black text-yellow-400 p-6 shadow-md border-b-4 border-yellow-500">
+    <a href="index.html" class="text-gray-300 text-sm hover:underline">&larr; กลับหน้ารายชื่อบริษัท</a>
+    <h1 id="pageTitle" class="text-2xl font-bold mt-1">เครื่องปรับอากาศ</h1>
+  </header>
+
+  <main class="max-w-6xl mx-auto p-6">
+
+    <!-- การ์ดสรุปข้อมูลด้านบน -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div class="bg-white rounded-lg shadow p-4 border-l-4 border-blue-500">
+        <p class="text-gray-500 text-sm">เครื่องทั้งหมด</p>
+        <p id="totalCount" class="text-3xl font-bold text-slate-800">-</p>
+      </div>
+      <div class="bg-white rounded-lg shadow p-4 border-l-4 border-green-500">
+        <p class="text-gray-500 text-sm">สถานะปกติ</p>
+        <p id="normalCount" class="text-3xl font-bold text-green-600">-</p>
+      </div>
+      <div class="bg-white rounded-lg shadow p-4 border-l-4 border-red-500">
+        <p class="text-gray-500 text-sm">ต้องซ่อม / รอเปลี่ยน</p>
+        <p id="issueCount" class="text-3xl font-bold text-red-600">-</p>
+      </div>
+    </div>
+
+    <!-- ปุ่มเพิ่มเครื่องแอร์ใหม่ -->
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-xl font-semibold text-slate-800">รายการเครื่องปรับอากาศ</h2>
+      <button id="addBtn" onclick="openAddModal()" class="bg-yellow-500 hover:bg-yellow-600 text-black font-semibold px-4 py-2 rounded-lg shadow">
+        + เพิ่มเครื่องแอร์
+      </button>
+    </div>
+
+    <!-- ตารางแสดงข้อมูล -->
+    <div class="bg-white rounded-lg shadow overflow-x-auto">
+      <table class="w-full text-left">
+        <thead class="bg-black text-yellow-400">
+          <tr>
+            <th class="p-3">รหัส</th>
+            <th class="p-3">ตำแหน่งติดตั้ง</th>
+            <th class="p-3">ยี่ห้อ</th>
+            <th class="p-3">ขนาด (BTU)</th>
+            <th class="p-3">ชนิด</th>
+            <th class="p-3">สถานะ</th>
+            <th class="p-3">จัดการ</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+          <!-- ข้อมูลจะถูกเติมตรงนี้ผ่าน JavaScript -->
+        </tbody>
+      </table>
+    </div>
+
+  </main>
+
+  <!-- Modal สำหรับเพิ่ม/แก้ไขข้อมูล -->
+  <div id="formModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+      <h3 id="modalTitle" class="text-lg font-semibold mb-4">เพิ่มเครื่องแอร์ใหม่</h3>
+
+      <form id="unitForm" class="space-y-3">
+        <input type="hidden" id="formId">
+
+        <div>
+          <label class="block text-sm text-gray-600 mb-1">รหัสเครื่อง</label>
+          <input type="text" id="formCode" required class="w-full border rounded px-3 py-2">
+        </div>
+        <div>
+          <label class="block text-sm text-gray-600 mb-1">เบอร์ติดต่อ</label>
+          <input type="text" id="formPhone" class="w-full border rounded px-3 py-2">
+        </div>
+        <div>
+          <label class="block text-sm text-gray-600 mb-1">ตำแหน่งติดตั้ง</label>
+          <input type="text" id="formLocation" placeholder="เช่น ชั้น 3 ห้องประชุม" class="w-full border rounded px-3 py-2">
+        </div>
+        <div>
+          <label class="block text-sm text-gray-600 mb-1">ยี่ห้อ</label>
+          <input type="text" id="formBrand" class="w-full border rounded px-3 py-2">
+        </div>
+        <div>
+          <label class="block text-sm text-gray-600 mb-1">ขนาด (BTU)</label>
+          <input type="number" id="formBtu" class="w-full border rounded px-3 py-2">
+        </div>
+        <div>
+          <label class="block text-sm text-gray-600 mb-1">ชนิด</label>
+          <select id="formType" class="w-full border rounded px-3 py-2">
+            <option value="ผนัง">ผนัง</option>
+            <option value="ตั้งพื้น">ตั้งพื้น</option>
+            <option value="แขวนฝ้า">แขวนฝ้า</option>
+            <option value="ท่อ">ท่อ</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm text-gray-600 mb-1">สถานะ</label>
+          <select id="formStatus" class="w-full border rounded px-3 py-2">
+            <option value="ปกติ">ปกติ</option>
+            <option value="ต้องซ่อม">ต้องซ่อม</option>
+            <option value="รอเปลี่ยน">รอเปลี่ยน</option>
+          </select>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="closeModal()" class="px-4 py-2 rounded border">ยกเลิก</button>
+          <button type="submit" class="px-4 py-2 rounded bg-yellow-500 text-black font-semibold hover:bg-yellow-600">บันทึก</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // ดึงชื่อบริษัทจาก URL (ส่งมาจากหน้า index.html)
+    const urlParams = new URLSearchParams(window.location.search);
+    const companyName = urlParams.get('company');
+
+    // เก็บข้อมูลเครื่องแอร์ทั้งหมดไว้ในตัวแปรนี้ เพื่อใช้อ้างอิงตอนแก้ไข
+    let unitsData = [];
+    let currentUserRole = null;
+
+    // แสดงชื่อบริษัทในหัวข้อหน้า
+    document.getElementById('pageTitle').textContent = `เครื่องปรับอากาศ: ${companyName || ''}`;
+
+    // ฟังก์ชันดึงเครื่องแอร์ของบริษัทนี้มาแสดง
+    async function loadUnits() {
+      const response = await fetch(`/api/ac-units/company/${encodeURIComponent(companyName)}`);
+      const data = await response.json();
+      unitsData = data;
+
+      const tableBody = document.getElementById('tableBody');
+      tableBody.innerHTML = '';
+
+      let normal = 0;
+      let issue = 0;
+
+      data.forEach(item => {
+        if (item.status === 'ปกติ') normal++;
+        else issue++;
+
+        let statusColor = 'bg-green-100 text-green-700';
+        if (item.status === 'ต้องซ่อม') statusColor = 'bg-red-100 text-red-700';
+        else if (item.status === 'รอเปลี่ยน') statusColor = 'bg-yellow-100 text-yellow-700';
+
+        const row = document.createElement('tr');
+        row.className = 'border-b hover:bg-gray-50';
+        row.innerHTML = `
+          <td class="p-3">${item.code}</td>
+          <td class="p-3">${item.location || '-'}</td>
+          <td class="p-3">${item.brand || '-'}</td>
+          <td class="p-3">${item.btu_size || '-'}</td>
+          <td class="p-3">${item.ac_type || '-'}</td>
+          <td class="p-3"><span class="px-2 py-1 rounded-full text-xs ${statusColor}">${item.status}</span></td>
+          <td class="p-3">
+            <a href="maintenance.html?id=${item.id}&code=${encodeURIComponent(item.code)}" class="text-green-600 hover:underline mr-2">ประวัติซ่อม</a>
+            ${currentUserRole === 'admin' ? `
+              <button onclick="openEditModal(${item.id})" class="text-yellow-700 font-medium hover:underline mr-2">แก้ไข</button>
+              <button onclick="deleteUnit(${item.id})" class="text-red-600 hover:underline">ลบ</button>
+            ` : ''}
+          </td>
+        `;
+        tableBody.appendChild(row);
+      });
+
+      document.getElementById('totalCount').textContent = data.length;
+      document.getElementById('normalCount').textContent = normal;
+      document.getElementById('issueCount').textContent = issue;
+    }
+
+    function openAddModal() {
+      document.getElementById('modalTitle').textContent = 'เพิ่มเครื่องแอร์ใหม่';
+      document.getElementById('unitForm').reset();
+      document.getElementById('formId').value = '';
+      document.getElementById('formModal').classList.remove('hidden');
+    }
+
+    function openEditModal(id) {
+      const item = unitsData.find(u => u.id === id);
+      document.getElementById('modalTitle').textContent = 'แก้ไขข้อมูลเครื่องแอร์';
+      document.getElementById('formId').value = item.id;
+      document.getElementById('formCode').value = item.code;
+      document.getElementById('formPhone').value = item.contact_phone || '';
+      document.getElementById('formLocation').value = item.location || '';
+      document.getElementById('formBrand').value = item.brand || '';
+      document.getElementById('formBtu').value = item.btu_size || '';
+      document.getElementById('formType').value = item.ac_type || 'ผนัง';
+      document.getElementById('formStatus').value = item.status;
+      document.getElementById('formModal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('formModal').classList.add('hidden');
+    }
+
+    // เมื่อกด submit ฟอร์ม (ทั้งเพิ่มและแก้ไขใช้ฟังก์ชันนี้ร่วมกัน)
+    document.getElementById('unitForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const id = document.getElementById('formId').value;
+
+      const payload = {
+        code: document.getElementById('formCode').value,
+        client_company: companyName, // ผูกกับบริษัทที่กำลังดูอยู่เสมอ
+        contact_phone: document.getElementById('formPhone').value,
+        location: document.getElementById('formLocation').value,
+        brand: document.getElementById('formBrand').value,
+        btu_size: document.getElementById('formBtu').value,
+        ac_type: document.getElementById('formType').value,
+        status: document.getElementById('formStatus').value,
+      };
+
+      if (id) {
+        await fetch(`/api/ac-units/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+      } else {
+        await fetch('/api/ac-units', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+      }
+
+      closeModal();
+      loadUnits();
+    });
+
+    async function deleteUnit(id) {
+      if (!confirm('ยืนยันการลบข้อมูลนี้หรือไม่?')) return;
+      await fetch(`/api/ac-units/${id}`, { method: 'DELETE' });
+      loadUnits();
+    }
+
+    // ฟังก์ชันเช็คว่า Login อยู่หรือไม่ ก่อนแสดงเนื้อหาในหน้านี้
+    async function checkAuth() {
+      const response = await fetch('/api/me');
+      if (!response.ok) {
+        window.location.href = 'login.html';
+        return;
+      }
+      const user = await response.json();
+      currentUserRole = user.role;
+
+      // ถ้าไม่ใช่ admin ให้ซ่อนปุ่ม "+ เพิ่มเครื่องแอร์"
+      if (currentUserRole !== 'admin') {
+        document.getElementById('addBtn').classList.add('hidden');
+      }
+
+      loadUnits();
+    }
+
+    checkAuth();
+
+    window.addEventListener('pageshow', function(event) {
+      if (event.persisted) {
+        checkAuth();
+      }
+    });
+  </script>
+
+</body>
+</html>

@@ -9,7 +9,7 @@
 
   <!-- ส่วนหัวเว็บ -->
   <header class="bg-black text-yellow-400 p-6 shadow-md border-b-4 border-yellow-500">
-    <a href="index.html" class="text-slate-300 text-sm hover:underline">&larr; กลับหน้ารายการหม้อแปลง</a>
+    <a href="javascript:history.back()" class="text-gray-300 text-sm hover:underline">&larr; กลับหน้าเครื่องปรับอากาศ</a>
     <h1 id="pageTitle" class="text-2xl font-bold mt-1">ประวัติซ่อมบำรุง</h1>
   </header>
 
@@ -45,9 +45,9 @@
         <div>
           <label class="block text-sm text-gray-600 mb-1">ประเภทงาน</label>
           <select id="formType" class="w-full border rounded px-3 py-2">
-            <option value="ตามแผน">ซ่อมบำรุงตามแผน</option>
-            <option value="ฉุกเฉิน">ซ่อมฉุกเฉิน</option>
-            <option value="ตรวจสอบ">ตรวจสอบทั่วไป</option>
+            <option value="ตามแผน">ตามแผน</option>
+            <option value="ฉุกเฉิน">ฉุกเฉิน</option>
+            <option value="ตรวจสอบ">ตรวจสอบ</option>
           </select>
         </div>
         <div>
@@ -75,17 +75,19 @@
   </div>
 
   <script>
-    // ดึงค่า id และชื่อตำบลของหม้อแปลง จาก URL (ส่งมาจากหน้า index.html)
+    // ดึงค่า id และรหัสเครื่องแอร์ จาก URL (ส่งมาจากหน้า units.html)
     const urlParams = new URLSearchParams(window.location.search);
-    const transformerId = urlParams.get('id');
-    const transformerName = urlParams.get('name');
+    const acUnitId = urlParams.get('id');
+    const unitCode = urlParams.get('code');
 
-    // แสดงชื่อตำบลในหัวข้อหน้า
-    document.getElementById('pageTitle').textContent = `ประวัติซ่อมบำรุง: ${transformerName || ''}`;
+    let currentUserRole = null;
 
-    // ฟังก์ชันดึงประวัติซ่อมของหม้อแปลงตัวนี้มาแสดง
+    // แสดงรหัสเครื่องในหัวข้อหน้า
+    document.getElementById('pageTitle').textContent = `ประวัติซ่อมบำรุง: ${unitCode || ''}`;
+
+    // ฟังก์ชันดึงประวัติซ่อมของเครื่องแอร์ตัวนี้มาแสดง
     async function loadRecords() {
-      const response = await fetch(`/api/maintenance/${transformerId}`);
+      const response = await fetch(`/api/maintenance/${acUnitId}`);
       const data = await response.json();
 
       const recordList = document.getElementById('recordList');
@@ -140,7 +142,7 @@
       e.preventDefault();
 
       const payload = {
-        transformer_id: transformerId,
+        ac_unit_id: acUnitId,
         maintenance_date: document.getElementById('formDate').value,
         maintenance_type: document.getElementById('formType').value,
         problem_description: document.getElementById('formProblem').value,
@@ -158,37 +160,32 @@
       loadRecords();
     });
 
-    // เก็บ role ของผู้ใช้ที่ login อยู่ไว้ใช้เช็คว่าเป็น admin หรือไม่
-let currentUserRole = null;
+    // ฟังก์ชันลบประวัติการซ่อม (เฉพาะ admin)
+    async function deleteRecord(id) {
+      if (!confirm('ยืนยันการลบประวัติซ่อมนี้หรือไม่?')) return;
+      await fetch(`/api/maintenance/${id}`, { method: 'DELETE' });
+      loadRecords();
+    }
 
-// ฟังก์ชันเช็คว่า Login อยู่หรือไม่ ก่อนแสดงเนื้อหาในหน้านี้
-async function checkAuth() {
-  const response = await fetch('/api/me');
-  if (!response.ok) {
-    window.location.href = 'login.html';
-    return;
-  }
-  const user = await response.json();
-  currentUserRole = user.role;
-  loadRecords();
-}
-
-// ฟังก์ชันลบประวัติการซ่อม (เฉพาะ admin)
-async function deleteRecord(id) {
-  if (!confirm('ยืนยันการลบประวัติซ่อมนี้หรือไม่?')) return;
-
-  await fetch(`/api/maintenance/${id}`, { method: 'DELETE' });
-  loadRecords(); // โหลดข้อมูลใหม่หลังลบเสร็จ
-}
+    // ฟังก์ชันเช็คว่า Login อยู่หรือไม่ ก่อนแสดงเนื้อหาในหน้านี้
+    async function checkAuth() {
+      const response = await fetch('/api/me');
+      if (!response.ok) {
+        window.location.href = 'login.html';
+        return;
+      }
+      const user = await response.json();
+      currentUserRole = user.role;
+      loadRecords();
+    }
 
     checkAuth();
 
-    // ป้องกันปัญหาเดียวกัน: กดย้อนกลับแล้วเห็นหน้าเดิมค้างอยู่
     window.addEventListener('pageshow', function(event) {
       if (event.persisted) {
         checkAuth();
-  }
-});
+      }
+    });
   </script>
 
 </body>
