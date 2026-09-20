@@ -79,10 +79,6 @@
           <input type="text" id="formCode" required class="w-full border rounded px-3 py-2">
         </div>
         <div>
-          <label class="block text-sm text-gray-600 mb-1">เบอร์ติดต่อ</label>
-          <input type="text" id="formPhone" class="w-full border rounded px-3 py-2">
-        </div>
-        <div>
           <label class="block text-sm text-gray-600 mb-1">ตำแหน่งติดตั้ง</label>
           <input type="text" id="formLocation" placeholder="เช่น ชั้น 3 ห้องประชุม" class="w-full border rounded px-3 py-2">
         </div>
@@ -189,7 +185,6 @@
       document.getElementById('modalTitle').textContent = 'แก้ไขข้อมูลเครื่องแอร์';
       document.getElementById('formId').value = item.id;
       document.getElementById('formCode').value = item.code;
-      document.getElementById('formPhone').value = item.contact_phone || '';
       document.getElementById('formLocation').value = item.location || '';
       document.getElementById('formBrand').value = item.brand || '';
       document.getElementById('formBtu').value = item.btu_size || '';
@@ -208,10 +203,9 @@
 
       const id = document.getElementById('formId').value;
 
-      const payload = {
+        const payload = {
         code: document.getElementById('formCode').value,
         client_company: companyName, // ผูกกับบริษัทที่กำลังดูอยู่เสมอ
-        contact_phone: document.getElementById('formPhone').value,
         location: document.getElementById('formLocation').value,
         brand: document.getElementById('formBrand').value,
         btu_size: document.getElementById('formBtu').value,

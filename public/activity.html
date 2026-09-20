@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>งานซ่อมล่าสุด</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-yellow-50 min-h-screen">
+
+  <header class="bg-black text-yellow-400 p-6 shadow-md flex justify-between items-center border-b-4 border-yellow-500">
+    <div>
+      <a href="index.html" class="text-gray-300 text-sm hover:underline">&larr; กลับหน้ารายชื่อบริษัท</a>
+      <h1 class="text-2xl font-bold mt-1">งานซ่อมล่าสุด</h1>
+    </div>
+    <div class="text-right">
+      <p id="userInfo" class="text-sm text-gray-300">กำลังโหลด...</p>
+      <button onclick="logout()" class="mt-1 bg-red-600 hover:bg-red-700 text-white text-sm px-3 py-1 rounded">
+        ออกจากระบบ
+      </button>
+    </div>
+  </header>
+
+  <main class="max-w-4xl mx-auto p-6">
+
+    <h2 class="text-xl font-semibold text-slate-800 mb-4">รายการบันทึกซ่อมล่าสุด (50 รายการ)</h2>
+
+    <div id="feedList" class="space-y-3"></div>
+
+    <p id="emptyMsg" class="text-gray-400 text-center py-12 hidden">ยังไม่มีการบันทึกซ่อมในระบบ</p>
+
+  </main>
+
+  <script>
+    async function loadFeed() {
+      const response = await fetch('/api/maintenance-feed');
+
+      if (!response.ok) {
+        window.location.href = 'index.html';
+        return;
+      }
+
+      const data = await response.json();
+
+      const feedList = document.getElementById('feedList');
+      const emptyMsg = document.getElementById('emptyMsg');
+      feedList.innerHTML = '';
+
+      if (data.length === 0) {
+        emptyMsg.classList.remove('hidden');
+        return;
+      }
+      emptyMsg.classList.add('hidden');
+
+      data.forEach(item => {
+        const unitCode = item.ac_units ? item.ac_units.code : '-';
+        const companyName = item.ac_units ? item.ac_units.client_company : '-';
+        const technicianName = item.profiles ? item.profiles.full_name : '-';
+
+        let typeColor = 'bg-blue-100 text-blue-700';
+        if (item.maintenance_type === 'ฉุกเฉิน') typeColor = 'bg-red-100 text-red-700';
+
+        let statusColor = item.status === 'เสร็จสิ้น' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700';
+
+        const card = document.createElement('a');
+        card.href = `units.html?company=${encodeURIComponent(companyName)}`;
+        card.className = 'bg-white rounded-lg shadow p-4 block hover:shadow-lg transition';
+
+        card.innerHTML = `
+          <div class="flex justify-between items-start mb-2">
+            <div class="flex items-center gap-2">
+              <span class="font-semibold text-slate-800">${unitCode}</span>
+              <span class="text-sm text-gray-500">${companyName}</span>
+            </div>
+            <span class="text-sm text-gray-400">${item.maintenance_date}</span>
+          </div>
+          <div class="flex gap-1 mb-2">
+            <span class="px-2 py-1 rounded-full text-xs ${typeColor}">${item.maintenance_type}</span>
+            <span class="px-2 py-1 rounded-full text-xs ${statusColor}">${item.status}</span>
+          </div>
+          <p class="text-sm text-gray-700"><b>ช่างผู้ซ่อม:</b> ${technicianName}</p>
+          <p class="text-sm text-gray-700"><b>ปัญหา:</b> ${item.problem_description || '-'}</p>
+          <p class="text-sm text-gray-700"><b>การแก้ไข:</b> ${item.action_taken || '-'}</p>
+        `;
+        feedList.appendChild(card);
+      });
+    }
+
+    async function checkAuth() {
+      const response = await fetch('/api/me');
+
+      if (!response.ok) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      const user = await response.json();
+
+      if (user.role !== 'admin') {
+        window.location.href = 'technician.html';
+        return;
+      }
+
+      document.getElementById('userInfo').textContent = `${user.full_name} (แอดมิน)`;
+
+      loadFeed();
+    }
+
+    async function logout() {
+      await fetch('/api/logout', { method: 'POST' });
+      window.location.href = 'login.html';
+    }
+
+    checkAuth();
+
+    window.addEventListener('pageshow', function(event) {
+      if (event.persisted) {
+        checkAuth();
+      }
+    });
+  </script>
+
+</body>
+</html>

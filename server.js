@@ -148,11 +148,46 @@ app.delete('/api/ac-units/:id', async (req, res) => {
 app.get('/api/maintenance/:acUnitId', async (req, res) => {
   const { acUnitId } = req.params;
 
+  // ดึงข้อมูลประวัติซ่อม พร้อม join เอาชื่อช่างจากตาราง profiles มาด้วย
   const { data, error } = await supabase
     .from('maintenance_records')
-    .select('*')
+    .select('*, profiles(full_name)')
     .eq('ac_unit_id', acUnitId)
     .order('maintenance_date', { ascending: false });
+
+  if (error) {
+    return res.status(500).json({ error: error.message });
+  }
+  res.json(data);
+});
+
+app.get('/api/maintenance/:acUnitId', async (req, res) => {
+  const { acUnitId } = req.params;
+
+  const { data, error } = await supabase
+    .from('maintenance_records')
+    .select('*, profiles(full_name)')
+    .eq('ac_unit_id', acUnitId)
+    .order('maintenance_date', { ascending: false });
+
+  if (error) {
+    return res.status(500).json({ error: error.message });
+  }
+  res.json(data);
+});
+
+// ===== วางโค้ดใหม่ตรงนี้ =====
+// ดึงประวัติการซ่อมทั้งหมด (ข้ามทุกบริษัท) สำหรับ Admin ดูภาพรวมล่าสุด
+app.get('/api/maintenance-feed', async (req, res) => {
+  if (!req.session.user || req.session.user.role !== 'admin') {
+    return res.status(403).json({ error: 'เฉพาะแอดมินเท่านั้นที่เข้าถึงได้' });
+  }
+
+  const { data, error } = await supabase
+    .from('maintenance_records')
+    .select('*, ac_units(code, client_company), profiles(full_name)')
+    .order('created_at', { ascending: false })
+    .limit(50);
 
   if (error) {
     return res.status(500).json({ error: error.message });
@@ -166,7 +201,11 @@ app.post('/api/maintenance', async (req, res) => {
   }
 
   const newRecord = req.body;
-  newRecord.technician = req.session.user.id;
+
+  // ถ้าเลือกช่างมาจากฟอร์ม ใช้ค่านั้น ถ้าไม่ได้เลือก ใช้คนที่ login อยู่แทน
+  if (!newRecord.technician) {
+    newRecord.technician = req.session.user.id;
+  }
 
   const { data, error } = await supabase
     .from('maintenance_records')
@@ -195,6 +234,21 @@ app.delete('/api/maintenance/:id', async (req, res) => {
     return res.status(500).json({ error: error.message });
   }
   res.json({ message: 'ลบข้อมูลสำเร็จ' });
+});
+
+// ==================== API รายชื่อช่าง ====================
+
+// ดึงรายชื่อช่างทั้งหมด (สำหรับ Dropdown เลือกตอนบันทึกงานซ่อม)
+app.get('/api/technicians', async (req, res) => {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('id, full_name')
+    .eq('role', 'technician');
+
+  if (error) {
+    return res.status(500).json({ error: error.message });
+  }
+  res.json(data);
 });
 
 // ==================== API ระบบ Login ====================

@@ -47,12 +47,18 @@
           <label class="block text-sm text-gray-600 mb-1">วันที่ซ่อม</label>
           <input type="date" id="formDate" required class="w-full border rounded px-3 py-2">
         </div>
-        <div>
+                <div>
           <label class="block text-sm text-gray-600 mb-1">ประเภทงาน</label>
           <select id="formType" class="w-full border rounded px-3 py-2">
             <option value="ตามแผน">ตามแผน</option>
             <option value="ฉุกเฉิน">ฉุกเฉิน</option>
             <option value="ตรวจสอบ">ตรวจสอบ</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm text-gray-600 mb-1">ช่างผู้ซ่อม</label>
+          <select id="formTechnician" class="w-full border rounded px-3 py-2">
+            <!-- รายชื่อช่างจะถูกเติมตรงนี้ผ่าน JavaScript -->
           </select>
         </div>
         <div>
@@ -113,6 +119,9 @@
 
         const card = document.createElement('div');
         card.className = 'bg-white rounded-lg shadow p-4';
+                // ดึงชื่อช่างจากข้อมูลที่ join มา (ถ้าไม่มีให้แสดง "-")
+        const technicianName = item.profiles ? item.profiles.full_name : '-';
+
         card.innerHTML = `
           <div class="flex justify-between items-start mb-2">
             <div>
@@ -121,6 +130,7 @@
             </div>
             <span class="text-sm text-gray-400">${item.maintenance_date}</span>
           </div>
+          <p class="text-sm text-gray-700"><b>ช่างผู้ซ่อม:</b> ${technicianName}</p>
           <p class="text-sm text-gray-700"><b>ปัญหา:</b> ${item.problem_description || '-'}</p>
           <p class="text-sm text-gray-700"><b>การแก้ไข:</b> ${item.action_taken || '-'}</p>
           ${currentUserRole === 'admin' ? `
@@ -133,8 +143,25 @@
       });
     }
 
+        // ฟังก์ชันดึงรายชื่อช่างทั้งหมด มาเติมใน Dropdown
+    async function loadTechnicians() {
+      const response = await fetch('/api/technicians');
+      const data = await response.json();
+
+      const select = document.getElementById('formTechnician');
+      select.innerHTML = '';
+
+      data.forEach(tech => {
+        const option = document.createElement('option');
+        option.value = tech.id;
+        option.textContent = tech.full_name;
+        select.appendChild(option);
+      });
+    }
+
     function openAddModal() {
       document.getElementById('maintenanceForm').reset();
+      loadTechnicians(); // โหลดรายชื่อช่างทุกครั้งที่เปิดฟอร์ม
       document.getElementById('formModal').classList.remove('hidden');
     }
 
@@ -148,6 +175,7 @@
 
       const payload = {
         ac_unit_id: acUnitId,
+        technician: document.getElementById('formTechnician').value,
         maintenance_date: document.getElementById('formDate').value,
         maintenance_type: document.getElementById('formType').value,
         problem_description: document.getElementById('formProblem').value,
