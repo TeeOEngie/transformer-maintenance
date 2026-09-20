@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>งานที่ต้องดำเนินการ</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-yellow-50 min-h-screen">
+
+  <!-- ส่วนหัวเว็บ -->
+  <header class="bg-black text-yellow-400 p-6 shadow-md flex justify-between items-center border-b-4 border-yellow-500">
+    <div>
+      <h1 class="text-2xl font-bold">❄️ งานที่ต้องดำเนินการ</h1>
+      <p class="text-gray-300">บริษัท คูลเทค แอร์เซอร์วิส จำกัด</p>
+    </div>
+    <div class="text-right">
+      <p id="userInfo" class="text-sm text-gray-300">กำลังโหลด...</p>
+      <button onclick="logout()" class="mt-1 bg-red-600 hover:bg-red-700 text-white text-sm px-3 py-1 rounded">
+        ออกจากระบบ
+      </button>
+    </div>
+  </header>
+
+  <main class="max-w-4xl mx-auto p-6">
+
+    <h2 class="text-xl font-semibold text-slate-800 mb-4">เครื่องปรับอากาศที่ต้องดำเนินการ</h2>
+
+    <!-- รายการเครื่องที่ต้องซ่อม/รอเปลี่ยน แสดงเป็นการ์ด -->
+    <div id="unitList" class="space-y-3">
+      <!-- ข้อมูลจะถูกเติมตรงนี้ผ่าน JavaScript -->
+    </div>
+
+    <p id="emptyMsg" class="text-gray-400 text-center py-12 hidden">🎉 ไม่มีงานค้างในขณะนี้ ทุกเครื่องอยู่ในสถานะปกติ</p>
+
+  </main>
+
+  <script>
+    let currentUserRole = null;
+
+    // ฟังก์ชันดึงเครื่องที่ต้องซ่อม/รอเปลี่ยน ทุกบริษัท มาแสดง
+    async function loadUnits() {
+      const response = await fetch('/api/ac-units/need-attention');
+      const data = await response.json();
+
+      const unitList = document.getElementById('unitList');
+      const emptyMsg = document.getElementById('emptyMsg');
+      unitList.innerHTML = '';
+
+      if (data.length === 0) {
+        emptyMsg.classList.remove('hidden');
+        return;
+      }
+      emptyMsg.classList.add('hidden');
+
+      data.forEach(item => {
+        // สีป้ายต่างกันตามสถานะ ต้องซ่อม = แดง, รอเปลี่ยน = เหลือง
+        const statusColor = item.status === 'ต้องซ่อม'
+          ? 'bg-red-100 text-red-700'
+          : 'bg-yellow-100 text-yellow-700';
+
+        const card = document.createElement('a');
+        // กดแล้วไปหน้าประวัติซ่อมของเครื่องนี้โดยตรง
+        card.href = `maintenance.html?id=${item.id}&code=${encodeURIComponent(item.code)}`;
+        card.className = 'bg-white rounded-lg shadow p-4 flex justify-between items-center hover:shadow-lg transition block';
+
+        card.innerHTML = `
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="font-semibold text-slate-800">${item.code}</span>
+              <span class="px-2 py-1 rounded-full text-xs ${statusColor}">${item.status}</span>
+            </div>
+            <p class="text-sm text-gray-600">${item.client_company}</p>
+            <p class="text-sm text-gray-400">${item.location || '-'}</p>
+          </div>
+          <span class="text-gray-400">&rarr;</span>
+        `;
+        unitList.appendChild(card);
+      });
+    }
+
+    // ฟังก์ชันเช็คว่า Login อยู่หรือไม่ ก่อนแสดงเนื้อหาในหน้านี้
+    async function checkAuth() {
+      const response = await fetch('/api/me');
+
+      if (!response.ok) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      const user = await response.json();
+      currentUserRole = user.role;
+      document.getElementById('userInfo').textContent = `${user.full_name} (ช่างซ่อมบำรุง)`;
+
+      loadUnits();
+    }
+
+    async function logout() {
+      await fetch('/api/logout', { method: 'POST' });
+      window.location.href = 'login.html';
+    }
+
+    checkAuth();
+
+    window.addEventListener('pageshow', function(event) {
+      if (event.persisted) {
+        checkAuth();
+      }
+    });
+  </script>
+
+</body>
+</html>

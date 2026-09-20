@@ -64,13 +64,18 @@
       const result = await response.json();
       const errorMsg = document.getElementById('errorMsg');
 
-      if (!response.ok) {
+            if (!response.ok) {
         errorMsg.textContent = result.error;
         errorMsg.classList.remove('hidden');
         return;
       }
 
-      window.location.href = 'index.html';
+      // ถ้าสำเร็จ ไปคนละหน้ากันตาม role: admin ไปหน้ารายชื่อบริษัท, ช่างไปหน้างานที่ต้องดำเนินการ
+      if (result.user.role === 'admin') {
+        window.location.href = 'index.html';
+      } else {
+        window.location.href = 'technician.html';
+      }
     });
   </script>
 
