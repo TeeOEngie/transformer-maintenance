@@ -17,6 +17,13 @@ app.use(express.static('public'));
 // จำเป็นต้องมีบรรทัดนี้ เพื่อให้ express อ่านข้อมูล JSON ที่ส่งมาจากฟอร์มได้
 app.use(express.json());
 
+
+// ป้องกันไม่ให้ browser แคช response ของ API ทุกเส้นทาง
+app.use('/api', (req, res, next) => {
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+  next();
+});
+
 // ตั้งค่า session ให้ express ใช้งาน
 app.use(session({
   secret: 'ac-maintenance-secret-key',

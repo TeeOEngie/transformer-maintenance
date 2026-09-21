@@ -5,10 +5,10 @@
   <title>งานที่ต้องดำเนินการ</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-yellow-50 min-h-screen">
+<body class="bg-sky-50 min-h-screen">
 
-  <!-- ส่วนหัวเว็บ -->
-  <header class="bg-black text-yellow-400 p-6 shadow-md flex justify-between items-center border-b-4 border-yellow-500">
+  <!-- ===== header ด้านบน ===== -->
+  <header class="bg-black text-sky-400 p-6 shadow-md flex justify-between items-center border-b-4 border-sky-500">
     <div>
       <h1 class="text-2xl font-bold">❄️ งานที่ต้องดำเนินการ</h1>
       <p class="text-gray-300">บริษัท คูลเทค แอร์เซอร์วิส จำกัด</p>
@@ -25,19 +25,15 @@
 
     <h2 class="text-xl font-semibold text-slate-800 mb-4">เครื่องปรับอากาศที่ต้องดำเนินการ</h2>
 
-    <!-- รายการเครื่องที่ต้องซ่อม/รอเปลี่ยน แสดงเป็นการ์ด -->
-    <div id="unitList" class="space-y-3">
-      <!-- ข้อมูลจะถูกเติมตรงนี้ผ่าน JavaScript -->
-    </div>
+    <!-- การ์ดงานที่ต้องซ่อมจะถูกสร้างเพิ่มตรงนี้ด้วย js -->
+    <div id="unitList" class="space-y-3"></div>
 
     <p id="emptyMsg" class="text-gray-400 text-center py-12 hidden">🎉 ไม่มีงานค้างในขณะนี้ ทุกเครื่องอยู่ในสถานะปกติ</p>
 
   </main>
 
   <script>
-    let currentUserRole = null;
-
-    // ฟังก์ชันดึงเครื่องที่ต้องซ่อม/รอเปลี่ยน ทุกบริษัท มาแสดง
+    // ===== โหลดเครื่องที่ต้องซ่อม/รอเปลี่ยน ทุกบริษัท =====
     async function loadUnits() {
       const response = await fetch('/api/ac-units/need-attention');
       const data = await response.json();
@@ -53,24 +49,31 @@
       emptyMsg.classList.add('hidden');
 
       data.forEach(item => {
-        // สีป้ายต่างกันตามสถานะ ต้องซ่อม = แดง, รอเปลี่ยน = เหลือง
+        // ต้องซ่อม = แดง, รอเปลี่ยน = เหลือง
         const statusColor = item.status === 'ต้องซ่อม'
           ? 'bg-red-100 text-red-700'
           : 'bg-yellow-100 text-yellow-700';
 
+        // กล่องหมายเหตุ โชว์เฉพาะตอนที่แอดมินเขียนไว้จริงๆ
+        const noteBox = item.note
+          ? `<p class="text-sm text-orange-700 bg-orange-50 border border-orange-200 rounded px-2 py-1 mt-2">📝 ${item.note}</p>`
+          : '';
+
         const card = document.createElement('a');
-        // กดแล้วไปหน้าประวัติซ่อมของเครื่องนี้โดยตรง
+        // กดแล้วไปหน้าประวัติซ่อมของเครื่องนี้เลย จะได้บันทึกงานได้ทันที
         card.href = `maintenance.html?id=${item.id}&code=${encodeURIComponent(item.code)}`;
         card.className = 'bg-white rounded-lg shadow p-4 flex justify-between items-center hover:shadow-lg transition block';
 
         card.innerHTML = `
-          <div>
+          <div class="flex-1">
             <div class="flex items-center gap-2 mb-1">
               <span class="font-semibold text-slate-800">${item.code}</span>
               <span class="px-2 py-1 rounded-full text-xs ${statusColor}">${item.status}</span>
             </div>
             <p class="text-sm text-gray-600">${item.client_company}</p>
             <p class="text-sm text-gray-400">${item.location || '-'}</p>
+            <p class="text-sm text-gray-500 mt-1">${item.brand || '-'} · ${item.btu_size ? item.btu_size + ' BTU' : '-'}</p>
+            ${noteBox}
           </div>
           <span class="text-gray-400">&rarr;</span>
         `;
@@ -78,7 +81,7 @@
       });
     }
 
-    // ฟังก์ชันเช็คว่า Login อยู่หรือไม่ ก่อนแสดงเนื้อหาในหน้านี้
+    // ===== เช็ค login =====
     async function checkAuth() {
       const response = await fetch('/api/me');
 
@@ -88,7 +91,6 @@
       }
 
       const user = await response.json();
-      currentUserRole = user.role;
       document.getElementById('userInfo').textContent = `${user.full_name} (ช่างซ่อมบำรุง)`;
 
       loadUnits();

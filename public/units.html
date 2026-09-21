@@ -5,13 +5,13 @@
   <title>เครื่องปรับอากาศ</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-yellow-50 min-h-screen">
+<body class="bg-sky-50 min-h-screen">
 
-  <!-- ส่วนหัวเว็บ -->
-    <header class="bg-black text-yellow-400 p-6 shadow-md border-b-4 border-yellow-500 flex justify-between items-center">
+  <!-- ===== header ด้านบน ===== -->
+  <header class="bg-black text-sky-400 p-6 shadow-md border-b-4 border-sky-500 flex justify-between items-center">
     <div>
-      <a href="javascript:history.back()" class="text-gray-300 text-sm hover:underline">&larr; กลับหน้าเครื่องปรับอากาศ</a>
-      <h1 id="pageTitle" class="text-2xl font-bold mt-1">ประวัติซ่อมบำรุง</h1>
+      <a href="index.html" class="text-gray-300 text-sm hover:underline">&larr; กลับหน้ารายชื่อบริษัท</a>
+      <h1 id="pageTitle" class="text-2xl font-bold mt-1">เครื่องปรับอากาศ</h1>
     </div>
     <div class="text-right">
       <p id="userInfo" class="text-sm text-gray-300">กำลังโหลด...</p>
@@ -20,7 +20,7 @@
 
   <main class="max-w-6xl mx-auto p-6">
 
-    <!-- การ์ดสรุปข้อมูลด้านบน -->
+    <!-- ===== การ์ดสรุปตัวเลขด้านบน ===== -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
       <div class="bg-white rounded-lg shadow p-4 border-l-4 border-blue-500">
         <p class="text-gray-500 text-sm">เครื่องทั้งหมด</p>
@@ -36,18 +36,18 @@
       </div>
     </div>
 
-    <!-- ปุ่มเพิ่มเครื่องแอร์ใหม่ -->
+    <!-- ===== หัวข้อ + ปุ่มเพิ่มเครื่อง ===== -->
     <div class="flex justify-between items-center mb-4">
       <h2 class="text-xl font-semibold text-slate-800">รายการเครื่องปรับอากาศ</h2>
-      <button id="addBtn" onclick="openAddModal()" class="bg-yellow-500 hover:bg-yellow-600 text-black font-semibold px-4 py-2 rounded-lg shadow">
+      <button id="addBtn" onclick="openAddModal()" class="bg-sky-500 hover:bg-sky-600 text-black font-semibold px-4 py-2 rounded-lg shadow">
         + เพิ่มเครื่องแอร์
       </button>
     </div>
 
-    <!-- ตารางแสดงข้อมูล -->
+    <!-- ===== ตารางแสดงเครื่องแอร์ ===== -->
     <div class="bg-white rounded-lg shadow overflow-x-auto">
       <table class="w-full text-left">
-        <thead class="bg-black text-yellow-400">
+        <thead class="bg-black text-sky-400">
           <tr>
             <th class="p-3">รหัส</th>
             <th class="p-3">ตำแหน่งติดตั้ง</th>
@@ -59,19 +59,20 @@
           </tr>
         </thead>
         <tbody id="tableBody">
-          <!-- ข้อมูลจะถูกเติมตรงนี้ผ่าน JavaScript -->
+          <!-- แถวข้อมูลจะถูกสร้างเพิ่มตรงนี้ด้วย js -->
         </tbody>
       </table>
     </div>
 
   </main>
 
-  <!-- Modal สำหรับเพิ่ม/แก้ไขข้อมูล -->
+  <!-- ===== modal ฟอร์มเพิ่ม/แก้ไขเครื่องแอร์ ===== -->
   <div id="formModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
       <h3 id="modalTitle" class="text-lg font-semibold mb-4">เพิ่มเครื่องแอร์ใหม่</h3>
 
       <form id="unitForm" class="space-y-3">
+        <!-- เก็บ id ไว้เฉยๆ เผื่อเป็นการแก้ไข ผู้ใช้จะไม่เห็นช่องนี้ -->
         <input type="hidden" id="formId">
 
         <div>
@@ -107,28 +108,31 @@
             <option value="รอเปลี่ยน">รอเปลี่ยน</option>
           </select>
         </div>
+        <div>
+          <label class="block text-sm text-gray-600 mb-1">หมายเหตุถึงช่าง (รายละเอียดที่ต้องซ่อม)</label>
+          <textarea id="formNote" rows="2" placeholder="ปัญหา" class="w-full border rounded px-3 py-2"></textarea>
+        </div>
 
         <div class="flex justify-end gap-2 pt-2">
           <button type="button" onclick="closeModal()" class="px-4 py-2 rounded border">ยกเลิก</button>
-          <button type="submit" class="px-4 py-2 rounded bg-yellow-500 text-black font-semibold hover:bg-yellow-600">บันทึก</button>
+          <button type="submit" class="px-4 py-2 rounded bg-sky-500 text-black font-semibold hover:bg-sky-600">บันทึก</button>
         </div>
       </form>
     </div>
   </div>
 
   <script>
-    // ดึงชื่อบริษัทจาก URL (ส่งมาจากหน้า index.html)
+    // ดึงชื่อบริษัทจาก url ที่ส่งมาจากหน้า index
     const urlParams = new URLSearchParams(window.location.search);
     const companyName = urlParams.get('company');
 
-    // เก็บข้อมูลเครื่องแอร์ทั้งหมดไว้ในตัวแปรนี้ เพื่อใช้อ้างอิงตอนแก้ไข
+    // เก็บข้อมูลเครื่องแอร์ทั้งหมดไว้ตรงนี้ เอาไว้ใช้ตอนกดแก้ไข
     let unitsData = [];
     let currentUserRole = null;
 
-    // แสดงชื่อบริษัทในหัวข้อหน้า
     document.getElementById('pageTitle').textContent = `เครื่องปรับอากาศ: ${companyName || ''}`;
 
-    // ฟังก์ชันดึงเครื่องแอร์ของบริษัทนี้มาแสดง
+    // ===== โหลดเครื่องแอร์ของบริษัทนี้ =====
     async function loadUnits() {
       const response = await fetch(`/api/ac-units/company/${encodeURIComponent(companyName)}`);
       const data = await response.json();
@@ -141,9 +145,11 @@
       let issue = 0;
 
       data.forEach(item => {
+        // นับจำนวนเครื่องปกติกับเครื่องที่มีปัญหา เอาไปโชว์การ์ดสรุปด้านบน
         if (item.status === 'ปกติ') normal++;
         else issue++;
 
+        // เลือกสีป้ายสถานะตามสถานะของเครื่อง
         let statusColor = 'bg-green-100 text-green-700';
         if (item.status === 'ต้องซ่อม') statusColor = 'bg-red-100 text-red-700';
         else if (item.status === 'รอเปลี่ยน') statusColor = 'bg-yellow-100 text-yellow-700';
@@ -160,7 +166,7 @@
           <td class="p-3">
             <a href="maintenance.html?id=${item.id}&code=${encodeURIComponent(item.code)}" class="text-green-600 hover:underline mr-2">ประวัติซ่อม</a>
             ${currentUserRole === 'admin' ? `
-              <button onclick="openEditModal(${item.id})" class="text-yellow-700 font-medium hover:underline mr-2">แก้ไข</button>
+              <button onclick="openEditModal(${item.id})" class="text-sky-700 font-medium hover:underline mr-2">แก้ไข</button>
               <button onclick="deleteUnit(${item.id})" class="text-red-600 hover:underline">ลบ</button>
             ` : ''}
           </td>
@@ -173,13 +179,17 @@
       document.getElementById('issueCount').textContent = issue;
     }
 
+    // ===== จัดการ modal เพิ่ม/แก้ไข =====
+
+    // เปิด modal แบบฟอร์มว่าง สำหรับเพิ่มเครื่องใหม่
     function openAddModal() {
       document.getElementById('modalTitle').textContent = 'เพิ่มเครื่องแอร์ใหม่';
       document.getElementById('unitForm').reset();
-      document.getElementById('formId').value = '';
+      document.getElementById('formId').value = ''; // เคลียร์ id เก่าไว้ก่อน กันเผลอไปทับข้อมูลเดิม
       document.getElementById('formModal').classList.remove('hidden');
     }
 
+    // เปิด modal พร้อมเติมข้อมูลเดิมของเครื่องที่กดแก้ไข
     function openEditModal(id) {
       const item = unitsData.find(u => u.id === id);
       document.getElementById('modalTitle').textContent = 'แก้ไขข้อมูลเครื่องแอร์';
@@ -190,6 +200,7 @@
       document.getElementById('formBtu').value = item.btu_size || '';
       document.getElementById('formType').value = item.ac_type || 'ผนัง';
       document.getElementById('formStatus').value = item.status;
+      document.getElementById('formNote').value = item.note || '';
       document.getElementById('formModal').classList.remove('hidden');
     }
 
@@ -197,29 +208,32 @@
       document.getElementById('formModal').classList.add('hidden');
     }
 
-    // เมื่อกด submit ฟอร์ม (ทั้งเพิ่มและแก้ไขใช้ฟังก์ชันนี้ร่วมกัน)
+    // ===== บันทึกฟอร์ม (ใช้ร่วมกันทั้งเพิ่มและแก้ไข) =====
     document.getElementById('unitForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
+      e.preventDefault(); // กันไม่ให้หน้า reload ตามพฤติกรรมปกติของฟอร์ม
 
       const id = document.getElementById('formId').value;
 
-        const payload = {
+      const payload = {
         code: document.getElementById('formCode').value,
-        client_company: companyName, // ผูกกับบริษัทที่กำลังดูอยู่เสมอ
+        client_company: companyName, // ผูกกับบริษัทที่กำลังเปิดดูอยู่เสมอ
         location: document.getElementById('formLocation').value,
         brand: document.getElementById('formBrand').value,
         btu_size: document.getElementById('formBtu').value,
         ac_type: document.getElementById('formType').value,
         status: document.getElementById('formStatus').value,
+        note: document.getElementById('formNote').value,
       };
 
       if (id) {
+        // มี id แปลว่ากำลังแก้ไขของเดิม
         await fetch(`/api/ac-units/${id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
         });
       } else {
+        // ไม่มี id แปลว่าเพิ่มเครื่องใหม่
         await fetch('/api/ac-units', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -228,17 +242,18 @@
       }
 
       closeModal();
-      loadUnits();
+      loadUnits(); // โหลดตารางใหม่จะได้เห็นข้อมูลล่าสุด
     });
 
+    // ===== ลบเครื่องแอร์ =====
     async function deleteUnit(id) {
-      if (!confirm('ยืนยันการลบข้อมูลนี้หรือไม่?')) return;
+      if (!confirm('ยืนยันการลบข้อมูลนี้หรือไม่?')) return; // กันมือลั่น
       await fetch(`/api/ac-units/${id}`, { method: 'DELETE' });
       loadUnits();
     }
 
-    // ฟังก์ชันเช็คว่า Login อยู่หรือไม่ ก่อนแสดงเนื้อหาในหน้านี้
-        async function checkAuth() {
+    // ===== เช็ค login =====
+    async function checkAuth() {
       const response = await fetch('/api/me');
       if (!response.ok) {
         window.location.href = 'login.html';
@@ -247,10 +262,9 @@
       const user = await response.json();
       currentUserRole = user.role;
 
-      // แสดงชื่อผู้ใช้ที่ login อยู่
       document.getElementById('userInfo').textContent = `${user.full_name} (${user.role === 'admin' ? 'แอดมิน' : 'ช่างซ่อมบำรุง'})`;
 
-      // ถ้าไม่ใช่ admin ให้ซ่อนปุ่ม "+ เพิ่มเครื่องแอร์"
+      // ช่างไม่ควรเห็นปุ่มเพิ่มเครื่อง เลยซ่อนไว้
       if (currentUserRole !== 'admin') {
         document.getElementById('addBtn').classList.add('hidden');
       }
@@ -258,14 +272,9 @@
       loadUnits();
     }
 
-    // ฟังก์ชัน Logout
-    async function logout() {
-      await fetch('/api/logout', { method: 'POST' });
-      window.location.href = 'login.html';
-    }
-
     checkAuth();
 
+    // กันเคส back cache เหมือนหน้าอื่นๆ
     window.addEventListener('pageshow', function(event) {
       if (event.persisted) {
         checkAuth();

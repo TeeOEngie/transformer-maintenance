@@ -5,10 +5,11 @@
   <title>ประวัติซ่อมบำรุง</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-yellow-50 min-h-screen">
+<body class="bg-sky-50 min-h-screen">
 
-  <!-- ส่วนหัวเว็บ -->
-      <header class="bg-black text-yellow-400 p-6 shadow-md border-b-4 border-yellow-500 flex justify-between items-center">
+  <!-- ===== header ด้านบน ===== -->
+  <!-- หน้านี้ไม่ใส่ปุ่มออกจากระบบ แต่ยังโชว์ชื่อคนที่ login อยู่ -->
+  <header class="bg-black text-sky-400 p-6 shadow-md border-b-4 border-sky-500 flex justify-between items-center">
     <div>
       <a href="javascript:history.back()" class="text-gray-300 text-sm hover:underline">&larr; กลับหน้าเครื่องปรับอากาศ</a>
       <h1 id="pageTitle" class="text-2xl font-bold mt-1">ประวัติซ่อมบำรุง</h1>
@@ -20,24 +21,22 @@
 
   <main class="max-w-4xl mx-auto p-6">
 
-    <!-- ปุ่มเพิ่มประวัติซ่อมใหม่ -->
+    <!-- ===== หัวข้อ + ปุ่มบันทึกงานซ่อม ===== -->
     <div class="flex justify-between items-center mb-4">
       <h2 class="text-xl font-semibold text-slate-800">ประวัติการซ่อมบำรุงทั้งหมด</h2>
-      <button onclick="openAddModal()" class="bg-yellow-500 hover:bg-yellow-600 text-black font-semibold px-4 py-2 rounded-lg shadow">
+      <button onclick="openAddModal()" class="bg-sky-500 hover:bg-sky-600 text-black font-semibold px-4 py-2 rounded-lg shadow">
         + บันทึกงานซ่อม
       </button>
     </div>
 
-    <!-- รายการประวัติซ่อม แสดงเป็นการ์ด -->
-    <div id="recordList" class="space-y-3">
-      <!-- ข้อมูลจะถูกเติมตรงนี้ผ่าน JavaScript -->
-    </div>
+    <!-- การ์ดประวัติซ่อมจะถูกสร้างเพิ่มตรงนี้ด้วย js -->
+    <div id="recordList" class="space-y-3"></div>
 
     <p id="emptyMsg" class="text-gray-400 text-center py-8 hidden">ยังไม่มีประวัติการซ่อมบำรุง</p>
 
   </main>
 
-  <!-- Modal สำหรับบันทึกงานซ่อมใหม่ -->
+  <!-- ===== modal ฟอร์มบันทึกงานซ่อม ===== -->
   <div id="formModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
       <h3 class="text-lg font-semibold mb-4">บันทึกงานซ่อมบำรุงใหม่</h3>
@@ -47,18 +46,18 @@
           <label class="block text-sm text-gray-600 mb-1">วันที่ซ่อม</label>
           <input type="date" id="formDate" required class="w-full border rounded px-3 py-2">
         </div>
-                <div>
+        <div>
           <label class="block text-sm text-gray-600 mb-1">ประเภทงาน</label>
           <select id="formType" class="w-full border rounded px-3 py-2">
-            <option value="ตามแผน">ตามแผน</option>
-            <option value="ฉุกเฉิน">ฉุกเฉิน</option>
-            <option value="ตรวจสอบ">ตรวจสอบ</option>
+            <option value="ตรวจเช็ค">ตรวจเช็ค</option>
+            <option value="ซ่อมภายใน">ซ่อมภายใน</option>
+            <option value="ซ่อมภายนอก">ซ่อมภายนอก</option>
           </select>
         </div>
         <div>
           <label class="block text-sm text-gray-600 mb-1">ช่างผู้ซ่อม</label>
           <select id="formTechnician" class="w-full border rounded px-3 py-2">
-            <!-- รายชื่อช่างจะถูกเติมตรงนี้ผ่าน JavaScript -->
+            <!-- รายชื่อช่างจะถูกเติมตรงนี้ด้วย js ตอนเปิดฟอร์ม -->
           </select>
         </div>
         <div>
@@ -79,24 +78,39 @@
 
         <div class="flex justify-end gap-2 pt-2">
           <button type="button" onclick="closeModal()" class="px-4 py-2 rounded border">ยกเลิก</button>
-          <button type="submit" class="px-4 py-2 rounded bg-yellow-500 text-black font-semibold hover:bg-yellow-600">บันทึก</button>
+          <button type="submit" class="px-4 py-2 rounded bg-sky-500 text-black font-semibold hover:bg-sky-600">บันทึก</button>
         </div>
       </form>
     </div>
   </div>
 
   <script>
-    // ดึงค่า id และรหัสเครื่องแอร์ จาก URL (ส่งมาจากหน้า units.html)
+    // ดึง id กับรหัสเครื่องจาก url ที่ส่งมาจากหน้า units
     const urlParams = new URLSearchParams(window.location.search);
     const acUnitId = urlParams.get('id');
     const unitCode = urlParams.get('code');
 
     let currentUserRole = null;
 
-    // แสดงรหัสเครื่องในหัวข้อหน้า
     document.getElementById('pageTitle').textContent = `ประวัติซ่อมบำรุง: ${unitCode || ''}`;
 
-    // ฟังก์ชันดึงประวัติซ่อมของเครื่องแอร์ตัวนี้มาแสดง
+    // ===== โหลดรายชื่อช่างมาใส่ dropdown =====
+    async function loadTechnicians() {
+      const response = await fetch('/api/technicians');
+      const data = await response.json();
+
+      const select = document.getElementById('formTechnician');
+      select.innerHTML = '';
+
+      data.forEach(tech => {
+        const option = document.createElement('option');
+        option.value = tech.id;
+        option.textContent = tech.full_name;
+        select.appendChild(option);
+      });
+    }
+
+    // ===== โหลดประวัติซ่อมของเครื่องนี้ =====
     async function loadRecords() {
       const response = await fetch(`/api/maintenance/${acUnitId}`);
       const data = await response.json();
@@ -112,16 +126,18 @@
       emptyMsg.classList.add('hidden');
 
       data.forEach(item => {
-        let typeColor = 'bg-blue-100 text-blue-700';
-        if (item.maintenance_type === 'ฉุกเฉิน') typeColor = 'bg-red-100 text-red-700';
+        // สีป้ายประเภทงาน แยกกัน 3 สี ไม่ใช้ฟ้าเพราะเป็นสีธีมเว็บไปแล้ว
+        let typeColor = 'bg-orange-100 text-orange-700'; // ตรวจเช็ค
+        if (item.maintenance_type === 'ซ่อมภายใน') typeColor = 'bg-red-100 text-red-700';
+        else if (item.maintenance_type === 'ซ่อมภายนอก') typeColor = 'bg-purple-100 text-purple-700';
 
         let statusColor = item.status === 'เสร็จสิ้น' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700';
 
-        const card = document.createElement('div');
-        card.className = 'bg-white rounded-lg shadow p-4';
-                // ดึงชื่อช่างจากข้อมูลที่ join มา (ถ้าไม่มีให้แสดง "-")
+        // ชื่อช่างดึงมาจาก profiles ที่ join มาด้วยตอนเรียก api ถ้าไม่มีให้โชว์ขีด
         const technicianName = item.profiles ? item.profiles.full_name : '-';
 
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-lg shadow p-4';
         card.innerHTML = `
           <div class="flex justify-between items-start mb-2">
             <div>
@@ -143,25 +159,9 @@
       });
     }
 
-        // ฟังก์ชันดึงรายชื่อช่างทั้งหมด มาเติมใน Dropdown
-    async function loadTechnicians() {
-      const response = await fetch('/api/technicians');
-      const data = await response.json();
-
-      const select = document.getElementById('formTechnician');
-      select.innerHTML = '';
-
-      data.forEach(tech => {
-        const option = document.createElement('option');
-        option.value = tech.id;
-        option.textContent = tech.full_name;
-        select.appendChild(option);
-      });
-    }
-
     function openAddModal() {
       document.getElementById('maintenanceForm').reset();
-      loadTechnicians(); // โหลดรายชื่อช่างทุกครั้งที่เปิดฟอร์ม
+      loadTechnicians(); // โหลดรายชื่อช่างใหม่ทุกครั้งที่เปิดฟอร์ม
       document.getElementById('formModal').classList.remove('hidden');
     }
 
@@ -169,7 +169,7 @@
       document.getElementById('formModal').classList.add('hidden');
     }
 
-    // เมื่อกด submit ฟอร์มบันทึกงานซ่อม
+    // ===== บันทึกฟอร์มงานซ่อมใหม่ =====
     document.getElementById('maintenanceForm').addEventListener('submit', async (e) => {
       e.preventDefault();
 
@@ -193,15 +193,15 @@
       loadRecords();
     });
 
-    // ฟังก์ชันลบประวัติการซ่อม (เฉพาะ admin)
+    // ===== ลบประวัติซ่อม (เฉพาะ admin) =====
     async function deleteRecord(id) {
       if (!confirm('ยืนยันการลบประวัติซ่อมนี้หรือไม่?')) return;
       await fetch(`/api/maintenance/${id}`, { method: 'DELETE' });
       loadRecords();
     }
 
-    // ฟังก์ชันเช็คว่า Login อยู่หรือไม่ ก่อนแสดงเนื้อหาในหน้านี้
-        async function checkAuth() {
+    // ===== เช็ค login =====
+    async function checkAuth() {
       const response = await fetch('/api/me');
       if (!response.ok) {
         window.location.href = 'login.html';
@@ -210,16 +210,9 @@
       const user = await response.json();
       currentUserRole = user.role;
 
-      // แสดงชื่อผู้ใช้ที่ login อยู่
       document.getElementById('userInfo').textContent = `${user.full_name} (${user.role === 'admin' ? 'แอดมิน' : 'ช่างซ่อมบำรุง'})`;
 
       loadRecords();
-    }
-
-    // ฟังก์ชัน Logout
-    async function logout() {
-      await fetch('/api/logout', { method: 'POST' });
-      window.location.href = 'login.html';
     }
 
     checkAuth();
