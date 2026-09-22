@@ -258,6 +258,59 @@ app.get('/api/technicians', async (req, res) => {
   res.json(data);
 });
 
+// ==================== API แผนตรวจเช็คแอร์ ====================
+
+// ดึงแผนตรวจเช็คทั้งหมด เรียงจากวันที่ใกล้ที่สุดก่อน
+app.get('/api/schedules', async (req, res) => {
+  const { data, error } = await supabase
+    .from('schedules')
+    .select('*')
+    .order('scheduled_date', { ascending: true });
+
+  if (error) {
+    return res.status(500).json({ error: error.message });
+  }
+  res.json(data);
+});
+
+// เพิ่มแผนตรวจเช็คใหม่ (เฉพาะ admin)
+app.post('/api/schedules', async (req, res) => {
+  if (!req.session.user || req.session.user.role !== 'admin') {
+    return res.status(403).json({ error: 'เฉพาะแอดมินเท่านั้นที่ทำรายการนี้ได้' });
+  }
+
+  const newSchedule = req.body;
+
+  const { data, error } = await supabase
+    .from('schedules')
+    .insert([newSchedule])
+    .select();
+
+  if (error) {
+    return res.status(500).json({ error: error.message });
+  }
+  res.json(data);
+});
+
+// ลบแผนตรวจเช็ค (เฉพาะ admin) ใช้ตอนตรวจเสร็จแล้วหรือยกเลิกแผน
+app.delete('/api/schedules/:id', async (req, res) => {
+  if (!req.session.user || req.session.user.role !== 'admin') {
+    return res.status(403).json({ error: 'เฉพาะแอดมินเท่านั้นที่ลบรายการนี้ได้' });
+  }
+
+  const { id } = req.params;
+
+  const { error } = await supabase
+    .from('schedules')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    return res.status(500).json({ error: error.message });
+  }
+  res.json({ message: 'ลบข้อมูลสำเร็จ' });
+});
+
 // ==================== API ระบบ Login ====================
 
 app.post('/api/login', async (req, res) => {

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>บริษัทลูกค้า</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-sky-50 min-h-screen flex">
+
+  <!-- ===== sidebar เมนูซ้าย ===== -->
+  <aside class="w-56 bg-black text-white min-h-screen p-4 flex-shrink-0">
+    <h2 class="text-sky-400 font-bold text-lg mb-6">❄️ CoolTrack</h2>
+    <nav class="space-y-2">
+      <a href="index.html" class="block px-3 py-2 rounded hover:bg-gray-800">🏠 หน้าหลัก</a>
+      <a href="companies.html" class="block px-3 py-2 rounded bg-sky-500 text-black font-semibold">🏢 บริษัทลูกค้า</a>
+      <a href="activity.html" class="block px-3 py-2 rounded hover:bg-gray-800">📋 งานซ่อมล่าสุด</a>
+      <a href="schedule.html" class="block px-3 py-2 rounded hover:bg-gray-800">📅 แผนตรวจเช็ค</a>
+    </nav>
+  </aside>
+
+  <!-- ===== เนื้อหาหลัก ===== -->
+  <div class="flex-1">
+    <header class="bg-white shadow-md p-6 flex justify-between items-center border-b-4 border-sky-500">
+      <h1 class="text-xl font-bold text-slate-800">รายชื่อบริษัทลูกค้า</h1>
+      <div class="text-right">
+        <p id="userInfo" class="text-sm text-gray-500">กำลังโหลด...</p>
+        <button onclick="logout()" class="mt-1 bg-red-600 hover:bg-red-700 text-white text-sm px-3 py-1 rounded">
+          ออกจากระบบ
+        </button>
+      </div>
+    </header>
+
+        <main class="max-w-5xl mx-auto p-6">
+
+      <!-- การ์ดสรุปตัวเลขภาพรวม -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div class="bg-white rounded-lg shadow p-5 border-l-4 border-sky-500">
+          <p class="text-gray-500 text-sm">บริษัทลูกค้าทั้งหมด</p>
+          <p id="totalCompanies" class="text-3xl font-bold text-slate-800">-</p>
+        </div>
+        <div class="bg-white rounded-lg shadow p-5 border-l-4 border-red-500">
+          <p class="text-gray-500 text-sm">เครื่องที่ต้องซ่อม</p>
+          <p id="totalRepair" class="text-3xl font-bold text-red-600">-</p>
+        </div>
+        <div class="bg-white rounded-lg shadow p-5 border-l-4 border-yellow-500">
+          <p class="text-gray-500 text-sm">เครื่องที่รอเปลี่ยน</p>
+          <p id="totalReplace" class="text-3xl font-bold text-yellow-600">-</p>
+        </div>
+      </div>
+
+      <!-- ตรงนี้จะเอาการ์ดบริษัทมาใส่ทีหลังด้วย js -->
+      <div id="companyList" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      </div>
+
+    </main>
+  </div>
+
+  <script>
+    // ดึงรายชื่อบริษัทจาก api แล้วเอามาสร้างเป็นการ์ด
+    async function loadCompanies() {
+      const response = await fetch('/api/companies');
+      const data = await response.json();
+
+      // คำนวณยอดรวมเครื่องที่ต้องซ่อม/รอเปลี่ยน จากทุกบริษัท เอาไปแสดงในการ์ดสรุป
+      let totalRepair = 0;
+      let totalReplace = 0;
+      data.forEach(company => {
+        totalRepair += company.needRepairCount;
+        totalReplace += company.needReplaceCount;
+      });
+      document.getElementById('totalCompanies').textContent = data.length;
+      document.getElementById('totalRepair').textContent = totalRepair;
+      document.getElementById('totalReplace').textContent = totalReplace;
+
+      const companyList = document.getElementById('companyList');
+      companyList.innerHTML = '';
+
+      data.forEach(company => {
+        const card = document.createElement('a');
+        card.href = `units.html?company=${encodeURIComponent(company.client_company)}`;
+        card.className = 'bg-white rounded-lg shadow p-5 hover:shadow-lg transition block border-l-4 border-sky-500';
+
+        let badges = '';
+
+        if (company.needRepairCount > 0) {
+          badges += `<span class="bg-red-100 text-red-700 text-xs font-semibold px-2 py-1 rounded-full block mb-1">ต้องซ่อม ${company.needRepairCount} เครื่อง</span>`;
+        }
+
+        if (company.needReplaceCount > 0) {
+          badges += `<span class="bg-yellow-100 text-yellow-700 text-xs font-semibold px-2 py-1 rounded-full block mb-1">รอเปลี่ยน ${company.needReplaceCount} เครื่อง</span>`;
+        }
+
+        if (company.needRepairCount === 0 && company.needReplaceCount === 0) {
+          badges = `<span class="bg-green-100 text-green-700 text-xs font-semibold px-2 py-1 rounded-full">ปกติทั้งหมด</span>`;
+        }
+
+        card.innerHTML = `
+          <div class="flex justify-between items-start">
+            <div>
+              <h3 class="font-semibold text-lg text-slate-800">${company.client_company}</h3>
+              <p class="text-sm text-gray-500 mt-1">เครื่องปรับอากาศทั้งหมด ${company.total} เครื่อง</p>
+            </div>
+            <div class="text-right">
+              ${badges}
+            </div>
+          </div>
+        `;
+        companyList.appendChild(card);
+      });
+    }
+
+    async function checkAuth() {
+      const response = await fetch('/api/me');
+
+      if (!response.ok) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      const user = await response.json();
+
+      if (user.role !== 'admin') {
+        window.location.href = 'technician.html';
+        return;
+      }
+
+      document.getElementById('userInfo').textContent = `${user.full_name} (แอดมิน)`;
+      loadCompanies();
+    }
+
+    async function logout() {
+      await fetch('/api/logout', { method: 'POST' });
+      window.location.href = 'login.html';
+    }
+
+    checkAuth();
+
+    window.addEventListener('pageshow', function(event) {
+      if (event.persisted) {
+        checkAuth();
+      }
+    });
+  </script>
+
+</body>
+</html>

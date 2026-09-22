@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>แผนตรวจเช็ค</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-sky-50 min-h-screen flex">
+
+  <!-- ===== sidebar เมนูซ้าย ===== -->
+  <aside class="w-56 bg-black text-white min-h-screen p-4 flex-shrink-0">
+    <h2 class="text-sky-400 font-bold text-lg mb-6">❄️ CoolTrack</h2>
+    <nav class="space-y-2">
+      <a href="index.html" class="block px-3 py-2 rounded hover:bg-gray-800">🏠 หน้าหลัก</a>
+      <a href="companies.html" class="block px-3 py-2 rounded hover:bg-gray-800">🏢 บริษัทลูกค้า</a>
+      <a href="activity.html" class="block px-3 py-2 rounded hover:bg-gray-800">📋 งานซ่อมล่าสุด</a>
+      <a href="schedule.html" class="block px-3 py-2 rounded bg-sky-500 text-black font-semibold">📅 แผนตรวจเช็ค</a>
+    </nav>
+  </aside>
+
+  <!-- ===== เนื้อหาหลัก ===== -->
+  <div class="flex-1">
+    <header class="bg-white shadow-md p-6 flex justify-between items-center border-b-4 border-sky-500">
+      <h1 class="text-xl font-bold text-slate-800">แผนตรวจเช็คแอร์ล่วงหน้า</h1>
+      <div class="text-right">
+        <p id="userInfo" class="text-sm text-gray-500">กำลังโหลด...</p>
+        <button onclick="logout()" class="mt-1 bg-red-600 hover:bg-red-700 text-white text-sm px-3 py-1 rounded">
+          ออกจากระบบ
+        </button>
+      </div>
+    </header>
+
+    <main class="max-w-3xl mx-auto p-6">
+
+      <!-- ปุ่มเพิ่มแผนใหม่ -->
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-semibold text-slate-800">รายการแผนที่ประกาศไว้</h2>
+        <button onclick="openAddModal()" class="bg-sky-500 hover:bg-sky-600 text-black font-semibold px-4 py-2 rounded-lg shadow">
+          + ประกาศแผนใหม่
+        </button>
+      </div>
+
+      <!-- การ์ดแผนตรวจเช็คจะถูกสร้างเพิ่มตรงนี้ด้วย js -->
+      <div id="scheduleList" class="space-y-3"></div>
+
+      <p id="emptyMsg" class="text-gray-400 text-center py-12 hidden">ยังไม่มีแผนตรวจเช็คที่ประกาศไว้</p>
+
+    </main>
+  </div>
+
+  <!-- ===== modal ฟอร์มประกาศแผนใหม่ ===== -->
+  <div id="formModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+      <h3 class="text-lg font-semibold mb-4">ประกาศแผนตรวจเช็คใหม่</h3>
+
+      <form id="scheduleForm" class="space-y-3">
+        <div>
+          <label class="block text-sm text-gray-600 mb-1">บริษัทที่จะไปตรวจ</label>
+          <select id="formCompany" required class="w-full border rounded px-3 py-2">
+            <!-- รายชื่อบริษัทจะถูกเติมตรงนี้ด้วย js ตอนเปิดฟอร์ม -->
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm text-gray-600 mb-1">วันที่นัดหมาย</label>
+          <input type="date" id="formDate" required class="w-full border rounded px-3 py-2">
+        </div>
+        <div>
+          <label class="block text-sm text-gray-600 mb-1">หมายเหตุ (ถ้ามี)</label>
+          <textarea id="formNote" rows="2" class="w-full border rounded px-3 py-2"></textarea>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="closeModal()" class="px-4 py-2 rounded border">ยกเลิก</button>
+          <button type="submit" class="px-4 py-2 rounded bg-sky-500 text-black font-semibold hover:bg-sky-600">ประกาศ</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // ===== โหลดรายชื่อบริษัทมาใส่ dropdown ในฟอร์ม =====
+    async function loadCompanyOptions() {
+      const response = await fetch('/api/companies');
+      const data = await response.json();
+
+      const select = document.getElementById('formCompany');
+      select.innerHTML = '';
+
+      data.forEach(company => {
+        const option = document.createElement('option');
+        option.value = company.client_company;
+        option.textContent = company.client_company;
+        select.appendChild(option);
+      });
+    }
+
+    // ===== โหลดแผนตรวจเช็คทั้งหมดมาแสดง =====
+    async function loadSchedules() {
+      const response = await fetch('/api/schedules');
+      const data = await response.json();
+
+      const scheduleList = document.getElementById('scheduleList');
+      const emptyMsg = document.getElementById('emptyMsg');
+      scheduleList.innerHTML = '';
+
+      if (data.length === 0) {
+        emptyMsg.classList.remove('hidden');
+        return;
+      }
+      emptyMsg.classList.add('hidden');
+
+      data.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-lg shadow p-4 flex justify-between items-start';
+        card.innerHTML = `
+          <div>
+            <p class="font-semibold text-slate-800">${item.client_company}</p>
+            <p class="text-sm text-sky-700">📅 วันที่ ${item.scheduled_date}</p>
+            ${item.note ? `<p class="text-sm text-gray-500 mt-1">${item.note}</p>` : ''}
+          </div>
+          <button onclick="deleteSchedule(${item.id})" class="text-red-600 text-sm hover:underline">ลบ</button>
+        `;
+        scheduleList.appendChild(card);
+      });
+    }
+
+    function openAddModal() {
+      document.getElementById('scheduleForm').reset();
+      loadCompanyOptions(); // โหลดรายชื่อบริษัทใหม่ทุกครั้งที่เปิดฟอร์ม
+      document.getElementById('formModal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('formModal').classList.add('hidden');
+    }
+
+    // ===== บันทึกแผนใหม่ =====
+    document.getElementById('scheduleForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const payload = {
+        client_company: document.getElementById('formCompany').value,
+        scheduled_date: document.getElementById('formDate').value,
+        note: document.getElementById('formNote').value,
+      };
+
+      await fetch('/api/schedules', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      closeModal();
+      loadSchedules();
+    });
+
+    // ===== ลบแผน (เช่น ตรวจเสร็จแล้วหรือยกเลิก) =====
+    async function deleteSchedule(id) {
+      if (!confirm('ยืนยันการลบแผนนี้หรือไม่?')) return;
+      await fetch(`/api/schedules/${id}`, { method: 'DELETE' });
+      loadSchedules();
+    }
+
+    async function checkAuth() {
+      const response = await fetch('/api/me');
+
+      if (!response.ok) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      const user = await response.json();
+
+      if (user.role !== 'admin') {
+        window.location.href = 'technician.html';
+        return;
+      }
+
+      document.getElementById('userInfo').textContent = `${user.full_name} (แอดมิน)`;
+      loadSchedules();
+    }
+
+    async function logout() {
+      await fetch('/api/logout', { method: 'POST' });
+      window.location.href = 'login.html';
+    }
+
+    checkAuth();
+
+    window.addEventListener('pageshow', function(event) {
+      if (event.persisted) {
+        checkAuth();
+      }
+    });
+  </script>
+
+</body>
+</html>

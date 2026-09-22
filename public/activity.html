@@ -5,39 +5,48 @@
   <title>งานซ่อมล่าสุด</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-sky-50 min-h-screen">
+<body class="bg-sky-50 min-h-screen flex">
 
-  <!-- ===== header ด้านบน ===== -->
-  <header class="bg-black text-sky-400 p-6 shadow-md flex justify-between items-center border-b-4 border-sky-500">
-    <div>
-      <a href="index.html" class="text-gray-300 text-sm hover:underline">&larr; กลับหน้ารายชื่อบริษัท</a>
-      <h1 class="text-2xl font-bold mt-1">งานซ่อมล่าสุด</h1>
-    </div>
-    <div class="text-right">
-      <p id="userInfo" class="text-sm text-gray-300">กำลังโหลด...</p>
-      <button onclick="logout()" class="mt-1 bg-red-600 hover:bg-red-700 text-white text-sm px-3 py-1 rounded">
-        ออกจากระบบ
-      </button>
-    </div>
-  </header>
+  <!-- ===== sidebar เมนูซ้าย ===== -->
+  <aside class="w-56 bg-black text-white min-h-screen p-4 flex-shrink-0">
+    <h2 class="text-sky-400 font-bold text-lg mb-6">❄️ CoolTrack</h2>
+    <nav class="space-y-2">
+      <a href="index.html" class="block px-3 py-2 rounded hover:bg-gray-800">🏠 หน้าหลัก</a>
+      <a href="companies.html" class="block px-3 py-2 rounded hover:bg-gray-800">🏢 บริษัทลูกค้า</a>
+      <a href="activity.html" class="block px-3 py-2 rounded bg-sky-500 text-black font-semibold">📋 งานซ่อมล่าสุด</a>
+      <a href="schedule.html" class="block px-3 py-2 rounded hover:bg-gray-800">📅 แผนตรวจเช็ค</a>
+    </nav>
+  </aside>
 
-  <main class="max-w-4xl mx-auto p-6">
+  <!-- ===== เนื้อหาหลัก ===== -->
+  <div class="flex-1">
+    <header class="bg-white shadow-md p-6 flex justify-between items-center border-b-4 border-sky-500">
+      <h1 class="text-xl font-bold text-slate-800">งานซ่อมล่าสุด</h1>
+      <div class="text-right">
+        <p id="userInfo" class="text-sm text-gray-500">กำลังโหลด...</p>
+        <button onclick="logout()" class="mt-1 bg-red-600 hover:bg-red-700 text-white text-sm px-3 py-1 rounded">
+          ออกจากระบบ
+        </button>
+      </div>
+    </header>
 
-    <h2 class="text-xl font-semibold text-slate-800 mb-4">รายการบันทึกซ่อมล่าสุด (50 รายการ)</h2>
+    <main class="max-w-4xl mx-auto p-6">
 
-    <!-- การ์ดกิจกรรมซ่อมจะถูกสร้างเพิ่มตรงนี้ด้วย js -->
-    <div id="feedList" class="space-y-3"></div>
+      <h2 class="text-xl font-semibold text-slate-800 mb-4">รายการบันทึกซ่อมล่าสุด (50 รายการ)</h2>
 
-    <p id="emptyMsg" class="text-gray-400 text-center py-12 hidden">ยังไม่มีการบันทึกซ่อมในระบบ</p>
+      <!-- การ์ดกิจกรรมซ่อมจะถูกสร้างเพิ่มตรงนี้ด้วย js -->
+      <div id="feedList" class="space-y-3"></div>
 
-  </main>
+      <p id="emptyMsg" class="text-gray-400 text-center py-12 hidden">ยังไม่มีการบันทึกซ่อมในระบบ</p>
+
+    </main>
+  </div>
 
   <script>
     // ===== โหลดฟีดงานซ่อมล่าสุดทุกบริษัท =====
     async function loadFeed() {
       const response = await fetch('/api/maintenance-feed');
 
-      // ถ้าไม่ใช่ admin api จะปฏิเสธ ให้เด้งกลับไปหน้าแรก
       if (!response.ok) {
         window.location.href = 'index.html';
         return;
@@ -56,12 +65,10 @@
       emptyMsg.classList.add('hidden');
 
       data.forEach(item => {
-        // ข้อมูลพวกนี้ join มาจาก ac_units กับ profiles ตอนเรียก api แล้ว
         const unitCode = item.ac_units ? item.ac_units.code : '-';
         const companyName = item.ac_units ? item.ac_units.client_company : '-';
         const technicianName = item.profiles ? item.profiles.full_name : '-';
 
-        // สีป้ายประเภทงาน เหมือนหน้า maintenance
         let typeColor = 'bg-orange-100 text-orange-700';
         if (item.maintenance_type === 'ซ่อมภายใน') typeColor = 'bg-red-100 text-red-700';
         else if (item.maintenance_type === 'ซ่อมภายนอก') typeColor = 'bg-purple-100 text-purple-700';
@@ -69,7 +76,6 @@
         let statusColor = item.status === 'เสร็จสิ้น' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700';
 
         const card = document.createElement('a');
-        // กดการ์ดแล้วพาไปหน้า units ของบริษัทนั้นเลย จะได้ไปแก้สถานะเครื่องได้ต่อ
         card.href = `units.html?company=${encodeURIComponent(companyName)}`;
         card.className = 'bg-white rounded-lg shadow p-4 block hover:shadow-lg transition';
 
@@ -93,7 +99,6 @@
       });
     }
 
-    // ===== เช็ค login (หน้านี้ admin เท่านั้น) =====
     async function checkAuth() {
       const response = await fetch('/api/me');
 
@@ -104,7 +109,6 @@
 
       const user = await response.json();
 
-      // ช่างไม่ควรเห็นหน้านี้ ส่งกลับไปหน้าของช่างแทน
       if (user.role !== 'admin') {
         window.location.href = 'technician.html';
         return;
