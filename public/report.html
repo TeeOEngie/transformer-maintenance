@@ -67,6 +67,12 @@
         </svg>
         ใบเรียกเก็บเงิน
       </a>
+      <a href="price-list.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-300 hover:bg-gray-800 transition">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+        </svg>
+        รายการราคา
+      </a>
     </nav>
 
     <div class="p-4 border-t border-gray-700">
@@ -107,8 +113,8 @@
             <input type="date" id="dateInput" class="mt-1 border border-gray-300 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-500">
           </label>
           <div class="flex rounded-lg border border-gray-300 overflow-hidden ml-auto">
-            <button id="modeSummary" onclick="setMode('summary')" class="px-4 py-2 text-sm transition bg-sky-500 text-black font-semibold">ใบสรุปงาน</button>
-            <button id="modeInvoice" onclick="setMode('invoice')" class="px-4 py-2 text-sm transition bg-white text-gray-600 hover:bg-gray-50">ใบเรียกเก็บเงิน</button>
+            <button id="modeSummary" onclick="setMode('summary')" class="px-4 py-2 text-sm whitespace-nowrap transition bg-sky-400 text-black font-bold hover:bg-black hover:text-sky-400">ใบสรุปงาน</button>
+            <button id="modeInvoice" onclick="setMode('invoice')" class="px-4 py-2 text-sm whitespace-nowrap transition bg-white text-gray-600 hover:bg-gray-50">ใบเรียกเก็บเงิน</button>
           </div>
         </div>
         <div id="issuedBox" class="hidden mt-3 pt-3 border-t border-gray-100 text-sm"></div>
@@ -134,11 +140,18 @@
 
     </main>
   </div>
-
   <script>
     // ===== ค่าคงที่ =====
     const OUR_COMPANY = 'บริษัท คูลเทค แอร์เซอร์วิส จำกัด';
     const VAT_RATE = 0.07;
+
+    // [ใหม่] ค่าแรงที่ใส่ให้อัตโนมัติตามประเภทงาน (ชื่อต้องตรงกับในหน้ารายการราคา)
+    // อยากเปลี่ยนว่างานแบบไหนใช้ค่าแรงอะไร แก้ตรงนี้ที่เดียว
+    const LABOR_BY_TYPE = {
+      'ตรวจเช็ค': 'ค่าแรงตรวจเช็ค',
+      'ซ่อมภายใน': 'ค่าแรงซ่อม',
+      'ซ่อมภายนอก': 'ค่าแรงซ่อม'
+    };
 
     // ===== state ของหน้า =====
     let records = [];        // งานซ่อมของบริษัท/วันที่เลือก
@@ -147,6 +160,7 @@
     let currentInvoice = null;        // ใบที่กำลังเปิดดู/แก้ไขอยู่
     let currentInvoiceRecords = [];   // งานซ่อมในใบนั้น
     let rerender = function () { renderDoc(); }; // ฟังก์ชันวาดหน้าซ้ำตอนกดเพิ่ม/ลบรายการ (สลับตามโหมด)
+    let priceList = [];               // [ใหม่] รายการราคามาตรฐานทั้งหมด
 
     const companySelect = document.getElementById('companySelect');
     const dateInput = document.getElementById('dateInput');
@@ -302,7 +316,7 @@
             body += `
               <tr class="border-b border-gray-100">
                 <td class="px-2 py-1">
-                  <input data-rid="${r.id}" data-idx="${idx}" data-field="description"
+                  <input data-rid="${r.id}" data-idx="${idx}" data-field="description" list="priceOptions"
                          value="${escapeHtml(item.description)}" placeholder="เช่น ค่าแรงล้างแอร์"
                          class="w-full border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-sky-500">
                 </td>
@@ -411,6 +425,48 @@
       document.getElementById('total').textContent = money(t.total) + ' บาท';
     }
 
+    // ===== [ใหม่] รายการราคามาตรฐาน =====
+
+    // โหลดรายการราคา แล้วใส่ใน datalist ให้ช่องชื่อรายการเด้งให้เลือก
+    async function loadPriceList() {
+      const response = await fetch('/api/price-list');
+      if (!response.ok) return; // โหลดไม่ได้ ยังพิมพ์เองได้ แค่ไม่มีราคาเติมให้
+
+      priceList = await response.json();
+
+      // สร้าง datalist ครั้งเดียว (ไม่ต้องแก้ HTML ด้านบน)
+      let datalist = document.getElementById('priceOptions');
+      if (!datalist) {
+        datalist = document.createElement('datalist');
+        datalist.id = 'priceOptions';
+        document.body.appendChild(datalist);
+      }
+      datalist.innerHTML = priceList
+        .map(p => '<option value="' + escapeHtml(p.name) + '"></option>')
+        .join('');
+    }
+
+    // หารายการในรายการราคาจากชื่อ (ไม่เจอ = null)
+    function findPrice(name) {
+      return priceList.find(p => p.name === String(name || '').trim()) || null;
+    }
+
+    // เตรียมแถวราคาของงาน 1 งาน สำหรับตอนออกใบใหม่:
+    // 1) อุปกรณ์ที่ช่างกรอกไว้ + ราคาจากรายการราคา (ถ้ายังเป็น 0)
+    // 2) ค่าแรงตามประเภทงาน (ถ้ายังไม่มีค่าแรงในงานนั้น)
+function prefillItems(record) {
+      const items = (record.repair_items || []).map(i => {
+        const found = findPrice(i.description);
+        // ถ้ายังไม่มีราคา (ช่างกรอกมาเป็น 0) ใช้ราคาจากรายการราคาแทน
+        const price = Number(i.unit_price) > 0 ? Number(i.unit_price) : (found ? Number(found.price) : 0);
+        return { description: i.description, quantity: i.quantity, unit_price: price };
+      });
+
+      // เพิ่มแถวว่างต่อท้ายไว้ 1 แถว ให้แอดมินใส่ค่าแรงได้ทันทีไม่ต้องกด "+ เพิ่มรายการ"
+      items.push({ description: '', quantity: 1, unit_price: 0 });
+      return items;
+    }
+
     // ===== โหมดสร้างรายงาน =====
 
     async function loadCompanyOptions(selected) {
@@ -434,10 +490,11 @@
 
     function setMode(newMode) {
       mode = newMode;
-      const active = 'bg-sky-500 text-black font-semibold';
+      // ปุ่มที่เลือกอยู่: พื้นฟ้า ตัวดำหนา ชี้แล้วเป็นพื้นดำ ตัวฟ้า (เหมือนปุ่มหลักของระบบ)
+      const active = 'bg-sky-400 text-black font-bold hover:bg-black hover:text-sky-400';
       const inactive = 'bg-white text-gray-600 hover:bg-gray-50';
-      document.getElementById('modeSummary').className = 'px-4 py-2 text-sm transition ' + (mode === 'summary' ? active : inactive);
-      document.getElementById('modeInvoice').className = 'px-4 py-2 text-sm transition ' + (mode === 'invoice' ? active : inactive);
+      document.getElementById('modeSummary').className = 'px-4 py-2 text-sm whitespace-nowrap transition ' + (mode === 'summary' ? active : inactive);
+      document.getElementById('modeInvoice').className = 'px-4 py-2 text-sm whitespace-nowrap transition ' + (mode === 'invoice' ? active : inactive);
       saveToUrl();
       if (companySelect.value) renderDoc();
     }
@@ -471,10 +528,10 @@
       }
       records = await response.json();
 
-      // เตรียมแถวกรอกราคาว่าง 1 แถว ให้ทุกงานที่ยังไม่ออกใบ
+      // [เปลี่ยน] เตรียมแถวราคาให้ทุกงานที่ยังไม่ออกใบ: อุปกรณ์จากช่าง + ราคามาตรฐาน + ค่าแรงอัตโนมัติ
       itemsByRecord = {};
       records.forEach(r => {
-        if (!r.invoice_id) itemsByRecord[r.id] = [{ description: '', quantity: 1, unit_price: 0 }];
+        if (!r.invoice_id) itemsByRecord[r.id] = prefillItems(r);
       });
 
       renderIssued();
@@ -512,7 +569,6 @@
         return;
       }
 
-      // โหมดใบเรียกเก็บเงิน: ใช้เฉพาะงานที่ยังไม่ออกใบ
       const pending = records.filter(r => !r.invoice_id);
       if (pending.length === 0) {
         return showMessage(records.length
@@ -556,7 +612,6 @@
       return items;
     }
 
-    // ออกใบเรียกเก็บเงินใหม่ แล้วพาไปหน้าดู/พิมพ์ใบ
     async function issueInvoice() {
       const items = collectItems();
       if (!items) return;
@@ -593,6 +648,18 @@
 
       const row = itemsByRecord[el.dataset.rid][el.dataset.idx];
       row[el.dataset.field] = el.value;
+
+      // [ใหม่] เลือก/พิมพ์ชื่อตรงกับรายการราคา และช่องราคายังว่างหรือเป็น 0 → เติมราคาให้เลย
+      if (el.dataset.field === 'description') {
+        const found = findPrice(el.value);
+        if (found && !(Number(row.unit_price) > 0)) {
+          row.unit_price = Number(found.price);
+          const priceInput = docEl.querySelector(
+            '[data-rid="' + el.dataset.rid + '"][data-idx="' + el.dataset.idx + '"][data-field="unit_price"]'
+          );
+          if (priceInput) priceInput.value = row.unit_price;
+        }
+      }
 
       const amount = Number(row.quantity || 0) * Number(row.unit_price || 0);
       document.getElementById('amt-' + el.dataset.rid + '-' + el.dataset.idx).textContent = money(amount);
@@ -769,6 +836,7 @@
       }
 
       document.getElementById('userInfo').textContent = user.full_name;
+      await loadPriceList(); // [ใหม่] โหลดรายการราคาก่อน ตอนเปิดฟอร์มจะได้เติมราคาได้
       init();
     }
 

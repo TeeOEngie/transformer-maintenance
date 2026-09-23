@@ -18,6 +18,31 @@
       transform: translateY(-3px);
       box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
     }
+
+    /* ปุ่มหลักของระบบ: พื้นฟ้า ตัวดำหนา ชี้แล้วเป็นพื้นดำ ตัวฟ้า */
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;                /* ข้อความอยู่กลางปุ่ม (ปุ่มนี้กว้างเต็มช่อง) */
+      gap: 6px;
+      background: #38bdf8;                    /* ฟ้าเดียวกับโลโก้ CoolTrack */
+      color: #000;
+      font-weight: 700;
+      padding: 0.625rem 1rem;
+      border-radius: 0.5rem;
+      box-shadow: inset 0 0 0 1.5px #38bdf8;  /* ขอบฟ้า (กลืนตอนปกติ เห็นเป็นกรอบตอนเป็นพื้นดำ) */
+      white-space: nowrap;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+    .btn-primary:hover {
+      background: #000;
+      color: #38bdf8;
+    }
+    .btn-primary:disabled {
+      opacity: 0.6;
+      cursor: wait;
+    }
   </style>
 </head>
 <body class="bg-sky-50 min-h-screen flex items-center justify-center">
@@ -59,7 +84,8 @@
           </button>
         </div>
       </div>
-      <button type="submit" class="w-full bg-sky-500 hover:bg-sky-600 text-black font-semibold py-2 rounded transition">
+      <!-- [เปลี่ยน] ปุ่มเข้าสู่ระบบแบบใหม่ กว้างเต็มช่อง -->
+      <button type="submit" class="btn-primary w-full">
         เข้าสู่ระบบ
       </button>
     </form>

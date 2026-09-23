@@ -42,6 +42,7 @@
         </svg>
         บริษัทลูกค้า
       </a>
+      <!-- หน้านี้ จึงเป็นสีฟ้า -->
       <a href="activity.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-sky-500 text-black font-semibold">
         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
@@ -59,12 +60,18 @@
           <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
         </svg>
         ออกรายงาน
-                    <a href="invoices.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-300 hover:bg-gray-800 transition">
+      </a>
+      <a href="invoices.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-300 hover:bg-gray-800 transition">
         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z" />
         </svg>
         ใบเรียกเก็บเงิน
       </a>
+      <a href="price-list.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-300 hover:bg-gray-800 transition">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+        </svg>
+        รายการราคา
       </a>
     </nav>
 
@@ -92,7 +99,7 @@
 
     <main class="max-w-4xl mx-auto p-6">
 
-      <!-- [ใหม่] หัวข้อ + ตัวเลือกบริษัท วางแถวเดียวกัน -->
+      <!-- หัวข้อ + ตัวเลือกบริษัท วางแถวเดียวกัน -->
       <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
         <h2 class="text-xl font-semibold text-slate-800">รายการบันทึกซ่อมล่าสุด</h2>
 
@@ -109,7 +116,7 @@
         </div>
       </div>
 
-      <!-- [ใหม่] บอกว่าตอนนี้แสดงอยู่กี่รายการ / ของบริษัทไหน -->
+      <!-- บอกว่าตอนนี้แสดงอยู่กี่รายการ / ของบริษัทไหน -->
       <p id="resultInfo" class="text-sm text-gray-500 mb-3"></p>
 
       <div id="feedList" class="space-y-3"></div>
@@ -122,8 +129,42 @@
   <script>
     const companyFilter = document.getElementById('companyFilter');
 
-    // [ใหม่] ดึงรายชื่อบริษัทมาใส่ใน dropdown
-    // ใช้ API /api/companies ตัวเดียวกับหน้าบริษัทลูกค้า ไม่ต้องเพิ่ม route ใหม่
+    // [ใหม่] วันที่ในรูปแบบ YYYY-MM-DD ตามเวลาเครื่อง (ใช้เทียบว่าเป็นวันนี้/เมื่อวานไหม)
+    function dateKey(d) {
+      return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    }
+
+    // [ใหม่] ข้อความบนเส้นแบ่งวัน เช่น "วันนี้ · 24 ก.ย. 2569" / "เมื่อวาน · ..." / "วันจันทร์ · ..."
+    function dayLabel(dateStr) {
+      const date = new Date(dateStr + 'T00:00:00');
+      const today = new Date();
+      const yesterday = new Date();
+      yesterday.setDate(today.getDate() - 1);
+
+      const shortDate = date.toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' });
+
+      if (dateStr === dateKey(today)) return 'วันนี้ · ' + shortDate;
+      if (dateStr === dateKey(yesterday)) return 'เมื่อวาน · ' + shortDate;
+
+      // วันอื่น: บอกชื่อวันในสัปดาห์ด้วย เช่น "วันจันทร์"
+      const weekday = date.toLocaleDateString('th-TH', { weekday: 'long' });
+      return weekday + ' · ' + shortDate;
+    }
+
+    // [ใหม่] สร้างเส้นแบ่งวัน: ข้อความวัน ——— เส้น ——— จำนวนงาน
+    function createDayDivider(dateStr, count, isFirst) {
+      const divider = document.createElement('div');
+      // วันแรกไม่ต้องเว้นด้านบนเยอะ วันถัดไปเว้นให้เห็นว่าเป็นกลุ่มใหม่
+      divider.className = 'flex items-center gap-3 ' + (isFirst ? '' : 'pt-4');
+      divider.innerHTML = `
+        <span class="text-sm font-semibold text-slate-700 whitespace-nowrap">${dayLabel(dateStr)}</span>
+        <div class="flex-1 h-px bg-gray-300"></div>
+        <span class="text-xs text-gray-500 whitespace-nowrap">${count} งาน</span>
+      `;
+      return divider;
+    }
+
+    // ดึงรายชื่อบริษัทมาใส่ใน dropdown (ใช้ API เดียวกับหน้าบริษัทลูกค้า)
     async function loadCompanyOptions() {
       const response = await fetch('/api/companies');
       if (!response.ok) return; // ถ้าดึงไม่ได้ ก็ยังดูแบบทุกบริษัทได้ตามปกติ
@@ -151,15 +192,52 @@
       if (companyFromUrl) companyFilter.value = companyFromUrl;
     }
 
+    // สร้างการ์ดงานซ่อม 1 ใบ (แยกออกมาเป็นฟังก์ชัน โค้ดวาดรายการจะได้อ่านง่าย)
+    function createCard(item) {
+      // ข้อมูลพวกนี้ join มาจาก ac_units กับ profiles ตั้งแต่ตอนเรียก api แล้ว
+      const unitCode = item.ac_units ? item.ac_units.code : '-';
+      const companyName = item.ac_units ? item.ac_units.client_company : '-';
+      const technicianName = item.profiles ? item.profiles.full_name : '-';
+
+      let typeColor = 'bg-orange-100 text-orange-700';
+      if (item.maintenance_type === 'ซ่อมภายใน') typeColor = 'bg-red-100 text-red-700';
+      else if (item.maintenance_type === 'ซ่อมภายนอก') typeColor = 'bg-purple-100 text-purple-700';
+
+      let statusColor = item.status === 'เสร็จสิ้น' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700';
+
+      const card = document.createElement('a');
+      // กดการ์ดแล้วพาไปหน้าเครื่องแอร์ของบริษัทนั้นเลย
+      card.href = `units.html?company=${encodeURIComponent(companyName)}`;
+      card.className = 'hover-lift bg-white rounded-lg shadow p-4 block transition';
+
+      card.innerHTML = `
+        <div class="flex justify-between items-start mb-2">
+          <div class="flex items-center gap-2">
+            <span class="font-semibold text-slate-800">${unitCode}</span>
+            <span class="text-sm text-gray-500">${companyName}</span>
+          </div>
+          <span class="text-sm text-gray-400">${item.maintenance_date}</span>
+        </div>
+        <div class="flex gap-1 mb-2">
+          <span class="px-2 py-1 rounded-full text-xs ${typeColor}">${item.maintenance_type}</span>
+          <span class="px-2 py-1 rounded-full text-xs ${statusColor}">${item.status}</span>
+        </div>
+        <p class="text-sm text-gray-700"><b>ช่างผู้ซ่อม:</b> ${technicianName}</p>
+        <p class="text-sm text-gray-700"><b>ปัญหา:</b> ${item.problem_description || '-'}</p>
+        <p class="text-sm text-gray-700"><b>การแก้ไข:</b> ${item.action_taken || '-'}</p>
+      `;
+      return card;
+    }
+
     // ดึงงานซ่อมล่าสุด ถ้าเลือกบริษัทไว้จะส่งชื่อบริษัทไปให้ server กรองให้
     async function loadFeed() {
       const company = companyFilter.value;
 
-      // [ใหม่] ต่อ ?company=... ท้าย URL เฉพาะตอนที่เลือกบริษัท
+      // ต่อ ?company=... ท้าย URL เฉพาะตอนที่เลือกบริษัท
       let url = '/api/maintenance-feed';
       if (company) url += '?company=' + encodeURIComponent(company);
 
-      // [ใหม่] จำตัวกรองไว้ใน URL ของหน้า กด refresh แล้วยังอยู่ที่บริษัทเดิม
+      // จำตัวกรองไว้ใน URL ของหน้า กด refresh แล้วยังอยู่ที่บริษัทเดิม
       const pageUrl = company ? `activity.html?company=${encodeURIComponent(company)}` : 'activity.html';
       history.replaceState(null, '', pageUrl);
 
@@ -177,13 +255,13 @@
       const resultInfo = document.getElementById('resultInfo');
       feedList.innerHTML = '';
 
-      // [ใหม่] ข้อความสรุปเหนือรายการ
+      // ข้อความสรุปเหนือรายการ
       resultInfo.textContent = company
         ? `แสดง ${data.length} รายการของ ${company}`
         : `แสดง ${data.length} รายการจากทุกบริษัท`;
 
       if (data.length === 0) {
-        // [ใหม่] ข้อความตอนว่าง แยกกรณีเลือกบริษัทกับไม่ได้เลือก
+        // ข้อความตอนว่าง แยกกรณีเลือกบริษัทกับไม่ได้เลือก
         emptyMsg.textContent = company
           ? `ยังไม่มีการบันทึกซ่อมของ ${company}`
           : 'ยังไม่มีการบันทึกซ่อมในระบบ';
@@ -192,44 +270,24 @@
       }
       emptyMsg.classList.add('hidden');
 
+      // [ใหม่] นับจำนวนงานของแต่ละวันไว้ก่อน จะได้โชว์ "x งาน" บนเส้นแบ่ง
+      const countByDate = {};
       data.forEach(item => {
-        // ข้อมูลพวกนี้ join มาจาก ac_units กับ profiles ตั้งแต่ตอนเรียก api แล้ว
-        const unitCode = item.ac_units ? item.ac_units.code : '-';
-        const companyName = item.ac_units ? item.ac_units.client_company : '-';
-        const technicianName = item.profiles ? item.profiles.full_name : '-';
+        countByDate[item.maintenance_date] = (countByDate[item.maintenance_date] || 0) + 1;
+      });
 
-        let typeColor = 'bg-orange-100 text-orange-700';
-        if (item.maintenance_type === 'ซ่อมภายใน') typeColor = 'bg-red-100 text-red-700';
-        else if (item.maintenance_type === 'ซ่อมภายนอก') typeColor = 'bg-purple-100 text-purple-700';
-
-        let statusColor = item.status === 'เสร็จสิ้น' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700';
-
-        const card = document.createElement('a');
-        // กดการ์ดแล้วพาไปหน้าเครื่องแอร์ของบริษัทนั้นเลย
-        card.href = `units.html?company=${encodeURIComponent(companyName)}`;
-        card.className = 'hover-lift bg-white rounded-lg shadow p-4 block transition';
-
-        card.innerHTML = `
-          <div class="flex justify-between items-start mb-2">
-            <div class="flex items-center gap-2">
-              <span class="font-semibold text-slate-800">${unitCode}</span>
-              <span class="text-sm text-gray-500">${companyName}</span>
-            </div>
-            <span class="text-sm text-gray-400">${item.maintenance_date}</span>
-          </div>
-          <div class="flex gap-1 mb-2">
-            <span class="px-2 py-1 rounded-full text-xs ${typeColor}">${item.maintenance_type}</span>
-            <span class="px-2 py-1 rounded-full text-xs ${statusColor}">${item.status}</span>
-          </div>
-          <p class="text-sm text-gray-700"><b>ช่างผู้ซ่อม:</b> ${technicianName}</p>
-          <p class="text-sm text-gray-700"><b>ปัญหา:</b> ${item.problem_description || '-'}</p>
-          <p class="text-sm text-gray-700"><b>การแก้ไข:</b> ${item.action_taken || '-'}</p>
-        `;
-        feedList.appendChild(card);
+      // [ใหม่] วาดการ์ดทีละใบ ถ้าวันที่เปลี่ยนจากใบก่อนหน้า ใส่เส้นแบ่งวันก่อน
+      let lastDate = null;
+      data.forEach(item => {
+        if (item.maintenance_date !== lastDate) {
+          feedList.appendChild(createDayDivider(item.maintenance_date, countByDate[item.maintenance_date], lastDate === null));
+          lastDate = item.maintenance_date;
+        }
+        feedList.appendChild(createCard(item));
       });
     }
 
-    // [ใหม่] เปลี่ยนบริษัทใน dropdown แล้วโหลดรายการใหม่ทันที
+    // เปลี่ยนบริษัทใน dropdown แล้วโหลดรายการใหม่ทันที
     companyFilter.addEventListener('change', loadFeed);
 
     async function checkAuth() {
@@ -249,7 +307,7 @@
 
       document.getElementById('userInfo').textContent = user.full_name;
 
-      // [เปลี่ยน] โหลดรายชื่อบริษัทให้เสร็จก่อน แล้วค่อยโหลดรายการซ่อม
+      // โหลดรายชื่อบริษัทให้เสร็จก่อน แล้วค่อยโหลดรายการซ่อม
       await loadCompanyOptions();
       loadFeed();
     }

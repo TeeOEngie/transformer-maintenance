@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>รายการราคา</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Kanit', sans-serif; }
+
+    /* ปุ่มหลักของระบบ: พื้นฟ้า ตัวดำหนา ชี้แล้วเป็นพื้นดำ ตัวฟ้า */
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #38bdf8;                    /* ฟ้าเดียวกับโลโก้ CoolTrack */
+      color: #000;
+      font-weight: 700;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      box-shadow: inset 0 0 0 1.5px #38bdf8;  /* ขอบฟ้า (กลืนตอนปกติ เห็นเป็นกรอบตอนเป็นพื้นดำ) */
+      white-space: nowrap;                    /* ข้อความไม่ตกบรรทัด */
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+    .btn-primary:hover {
+      background: #000;
+      color: #38bdf8;
+    }
+    .btn-primary:disabled {
+      opacity: 0.6;
+      cursor: wait;
+    }
+    /* ให้คลาส hidden ของ Tailwind ยังซ่อนปุ่มได้ */
+    .btn-primary.hidden {
+      display: none;
+    }
+    .btn-primary svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+<body class="bg-sky-50 min-h-screen flex">
+
+  <aside class="w-64 bg-black text-white min-h-screen flex flex-col flex-shrink-0">
+
+    <div class="p-5 flex items-center gap-3 border-b border-gray-700">
+      <svg class="w-7 h-7 text-sky-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" />
+      </svg>
+      <h2 class="font-bold text-lg text-sky-400">CoolTrack</h2>
+    </div>
+
+    <nav class="flex-1 p-4 space-y-1">
+      <a href="index.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-300 hover:bg-gray-800 transition">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+        </svg>
+        หน้าหลัก
+      </a>
+      <a href="companies.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-300 hover:bg-gray-800 transition">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2M5 21H3m16 0h-2M9 7h1m-1 4h1m-1 4h1m4-8h1m-1 4h1m-1 4h1" />
+        </svg>
+        บริษัทลูกค้า
+      </a>
+      <a href="activity.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-300 hover:bg-gray-800 transition">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+        </svg>
+        งานซ่อมล่าสุด
+      </a>
+      <a href="schedule.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-300 hover:bg-gray-800 transition">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+        แผนตรวจเช็ค
+      </a>
+      <a href="report.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-300 hover:bg-gray-800 transition">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+        ออกรายงาน
+      </a>
+      <a href="invoices.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-300 hover:bg-gray-800 transition">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z" />
+        </svg>
+        ใบเรียกเก็บเงิน
+      </a>
+      <!-- หน้านี้ จึงเป็นสีฟ้า -->
+      <a href="price-list.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-sky-500 text-black font-semibold">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+        </svg>
+        รายการราคา
+      </a>
+    </nav>
+
+    <div class="p-4 border-t border-gray-700">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="w-9 h-9 rounded-full bg-sky-500 flex items-center justify-center font-bold text-black">A</div>
+        <div>
+          <p id="userInfo" class="text-sm font-medium">กำลังโหลด...</p>
+          <p class="text-xs text-gray-400">แอดมิน</p>
+        </div>
+      </div>
+      <button onclick="logout()" class="flex items-center gap-2 text-sm text-gray-400 hover:text-red-400 transition">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+        </svg>
+        ออกจากระบบ
+      </button>
+    </div>
+  </aside>
+
+  <div class="flex-1">
+    <header class="bg-white shadow-md p-6 border-b-4 border-sky-500">
+      <h1 class="text-xl font-bold text-slate-800">รายการราคามาตรฐาน</h1>
+    </header>
+
+    <main class="max-w-4xl mx-auto p-6">
+
+      <div class="flex flex-wrap justify-between items-center gap-3 mb-4">
+        <p class="text-sm text-gray-600">ราคาในนี้จะถูกเติมให้อัตโนมัติตอนออกใบเรียกเก็บเงิน (แก้ในใบได้เสมอ และไม่กระทบใบที่ออกไปแล้ว)</p>
+        <!-- ปุ่มหลักแบบใหม่ + ไอคอนบวก -->
+        <button onclick="openAddModal()" class="btn-primary">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" d="M12 5v14M5 12h14"/></svg>
+          เพิ่มรายการ
+        </button>
+      </div>
+
+      <div id="tableWrap" class="hidden bg-white rounded-lg shadow overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b-2 border-gray-200 text-left text-gray-600">
+              <th class="px-4 py-3">ชื่อรายการ</th>
+              <th class="px-4 py-3">ประเภท</th>
+              <th class="px-4 py-3">หน่วย</th>
+              <th class="px-4 py-3 text-right">ราคา/หน่วย (บาท)</th>
+              <th class="px-4 py-3 text-right">จัดการ</th>
+            </tr>
+          </thead>
+          <tbody id="priceRows"></tbody>
+        </table>
+      </div>
+
+      <p id="emptyMsg" class="hidden text-gray-400 text-center py-12">ยังไม่มีรายการราคา กด "+ เพิ่มรายการ" เพื่อเริ่ม</p>
+
+    </main>
+  </div>
+
+  <!-- modal ฟอร์มเพิ่ม/แก้ไขรายการราคา -->
+  <div id="formModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+      <h3 id="modalTitle" class="text-lg font-semibold mb-4">เพิ่มรายการราคา</h3>
+
+      <form id="priceForm" class="space-y-3">
+        <!-- เก็บ id ไว้ตอนแก้ไข (ว่าง = เพิ่มใหม่) -->
+        <input type="hidden" id="formId">
+
+        <div>
+          <label class="block text-sm text-gray-600 mb-1">ชื่อรายการ</label>
+          <input type="text" id="formName" required placeholder="เช่น เติมน้ำยา R32" class="w-full border rounded px-3 py-2">
+        </div>
+        <div>
+          <label class="block text-sm text-gray-600 mb-1">ประเภท</label>
+          <select id="formType" class="w-full border rounded px-3 py-2">
+            <option value="part">อุปกรณ์ / อะไหล่</option>
+            <option value="labor">ค่าแรง / ค่าบริการ</option>
+          </select>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-sm text-gray-600 mb-1">หน่วย</label>
+            <input type="text" id="formUnit" placeholder="ชิ้น, เมตร, ครั้ง" class="w-full border rounded px-3 py-2">
+          </div>
+          <div>
+            <label class="block text-sm text-gray-600 mb-1">ราคา/หน่วย (บาท)</label>
+            <input type="number" id="formPrice" required min="0" step="0.01" class="w-full border rounded px-3 py-2 text-right">
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="closeModal()" class="px-4 py-2 rounded border">ยกเลิก</button>
+          <!-- ปุ่มบันทึกในฟอร์ม ใช้แบบเดียวกับปุ่มยกเลิก -->
+          <button type="submit" class="px-4 py-2 rounded border">บันทึก</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // เก็บรายการทั้งหมดไว้ กดแก้ไขจะได้ดึงมาเติมฟอร์มได้
+    let priceList = [];
+
+    const TYPE_LABEL = {
+      part: { text: 'อุปกรณ์', color: 'bg-sky-100 text-sky-700' },
+      labor: { text: 'ค่าแรง', color: 'bg-orange-100 text-orange-700' }
+    };
+
+    // กันข้อความพิเศษทำให้ HTML พัง
+    function escapeHtml(text) {
+      return String(text == null ? '' : text)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+    // แสดงเงินแบบ 1,234.50
+    function money(n) {
+      return Number(n || 0).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    // ดึงรายการราคาแล้ววาดตาราง
+    async function loadPriceList() {
+      const response = await fetch('/api/price-list');
+      const tableWrap = document.getElementById('tableWrap');
+      const emptyMsg = document.getElementById('emptyMsg');
+
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        tableWrap.classList.add('hidden');
+        emptyMsg.textContent = 'โหลดข้อมูลไม่สำเร็จ: ' + (err.error || response.status);
+        emptyMsg.classList.remove('hidden');
+        return;
+      }
+
+      priceList = await response.json();
+
+      if (priceList.length === 0) {
+        tableWrap.classList.add('hidden');
+        emptyMsg.classList.remove('hidden');
+        return;
+      }
+      emptyMsg.classList.add('hidden');
+      tableWrap.classList.remove('hidden');
+
+      document.getElementById('priceRows').innerHTML = priceList.map(item => {
+        const type = TYPE_LABEL[item.item_type] || TYPE_LABEL.part;
+        return `
+          <tr class="border-b border-gray-100 hover:bg-sky-50 transition">
+            <td class="px-4 py-3 font-medium text-slate-800">${escapeHtml(item.name)}</td>
+            <td class="px-4 py-3"><span class="px-2 py-1 rounded-full text-xs ${type.color}">${type.text}</span></td>
+            <td class="px-4 py-3 text-gray-700">${escapeHtml(item.unit || '-')}</td>
+            <td class="px-4 py-3 text-right text-slate-800">${money(item.price)}</td>
+            <td class="px-4 py-3">
+              <!-- ปุ่มแก้ไข/ลบ แบบมีไอคอน เหมือนหน้าเครื่องปรับอากาศ (ชิดขวาให้ตรงกับหัวคอลัมน์) -->
+              <div class="flex items-center justify-end gap-3 whitespace-nowrap">
+                <button onclick="openEditModal(${item.id})" class="flex items-center gap-1 text-sky-700 hover:text-sky-800 transition">
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                  แก้ไข
+                </button>
+                <button onclick="deleteItem(${item.id})" class="flex items-center gap-1 text-red-600 hover:text-red-700 transition">
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                  ลบ
+                </button>
+              </div>
+            </td>
+          </tr>`;
+      }).join('');
+    }
+
+    function openAddModal() {
+      document.getElementById('modalTitle').textContent = 'เพิ่มรายการราคา';
+      document.getElementById('priceForm').reset();
+      document.getElementById('formId').value = '';
+      document.getElementById('formModal').classList.remove('hidden');
+    }
+
+    function openEditModal(id) {
+      const item = priceList.find(p => p.id === id);
+      document.getElementById('modalTitle').textContent = 'แก้ไขรายการราคา';
+      document.getElementById('formId').value = item.id;
+      document.getElementById('formName').value = item.name;
+      document.getElementById('formType').value = item.item_type;
+      document.getElementById('formUnit').value = item.unit || '';
+      document.getElementById('formPrice').value = item.price;
+      document.getElementById('formModal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('formModal').classList.add('hidden');
+    }
+
+    // บันทึก: ไม่มี id = เพิ่มใหม่ / มี id = แก้ไข
+    document.getElementById('priceForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const id = document.getElementById('formId').value;
+      const payload = {
+        name: document.getElementById('formName').value,
+        item_type: document.getElementById('formType').value,
+        unit: document.getElementById('formUnit').value,
+        price: document.getElementById('formPrice').value
+      };
+
+      const response = await fetch(id ? '/api/price-list/' + id : '/api/price-list', {
+        method: id ? 'PUT' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const result = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        alert(result.error || 'บันทึกไม่สำเร็จ');
+        return;
+      }
+
+      closeModal();
+      loadPriceList();
+    });
+
+    async function deleteItem(id) {
+      const item = priceList.find(p => p.id === id);
+      if (!confirm('ลบรายการ "' + item.name + '"?\nใบที่ออกไปแล้วไม่ได้รับผลกระทบ')) return;
+
+      const response = await fetch('/api/price-list/' + id, { method: 'DELETE' });
+      if (!response.ok) {
+        const result = await response.json().catch(() => ({}));
+        alert(result.error || 'ลบไม่สำเร็จ');
+        return;
+      }
+      loadPriceList();
+    }
+
+    async function checkAuth() {
+      const response = await fetch('/api/me');
+
+      if (!response.ok) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      const user = await response.json();
+
+      if (user.role !== 'admin') {
+        window.location.href = 'technician.html';
+        return;
+      }
+
+      document.getElementById('userInfo').textContent = user.full_name;
+      loadPriceList();
+    }
+
+    async function logout() {
+      await fetch('/api/logout', { method: 'POST' });
+      window.location.href = 'login.html';
+    }
+
+    checkAuth();
+
+    window.addEventListener('pageshow', function (event) {
+      if (event.persisted) checkAuth();
+    });
+  </script>
+
+</body>
+</html>
