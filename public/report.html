@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>ออกรายงาน</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Kanit', sans-serif; }
+    /* ให้สีพื้นหลังในเอกสารติดไปตอนพิมพ์ด้วย */
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    /* ขนาดกระดาษ A4 และขอบกระดาษตอนพิมพ์ */
+    @page { size: A4; margin: 15mm; }
+    @media print {
+      body { background: white; }
+    }
+  </style>
+</head>
+<body class="bg-sky-50 min-h-screen flex">
+
+  <!-- print:hidden = ซ่อน sidebar ตอนพิมพ์ -->
+  <aside class="w-64 bg-black text-white min-h-screen flex flex-col flex-shrink-0 print:hidden">
+
+    <div class="p-5 flex items-center gap-3 border-b border-gray-700">
+      <svg class="w-7 h-7 text-sky-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" />
+      </svg>
+      <h2 class="font-bold text-lg text-sky-400">CoolTrack</h2>
+    </div>
+
+    <nav class="flex-1 p-4 space-y-1">
+      <a href="index.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-300 hover:bg-gray-800 transition">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+        </svg>
+        หน้าหลัก
+      </a>
+      <a href="companies.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-300 hover:bg-gray-800 transition">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2M5 21H3m16 0h-2M9 7h1m-1 4h1m-1 4h1m4-8h1m-1 4h1m-1 4h1" />
+        </svg>
+        บริษัทลูกค้า
+      </a>
+      <a href="activity.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-300 hover:bg-gray-800 transition">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+        </svg>
+        งานซ่อมล่าสุด
+      </a>
+      <a href="schedule.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-300 hover:bg-gray-800 transition">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+        แผนตรวจเช็ค
+      </a>
+      <a href="report.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-sky-500 text-black font-semibold">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+        ออกรายงาน
+      </a>
+      <a href="invoices.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-300 hover:bg-gray-800 transition">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z" />
+        </svg>
+        ใบเรียกเก็บเงิน
+      </a>
+    </nav>
+
+    <div class="p-4 border-t border-gray-700">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="w-9 h-9 rounded-full bg-sky-500 flex items-center justify-center font-bold text-black">A</div>
+        <div>
+          <p id="userInfo" class="text-sm font-medium">กำลังโหลด...</p>
+          <p class="text-xs text-gray-400">แอดมิน</p>
+        </div>
+      </div>
+      <button onclick="logout()" class="flex items-center gap-2 text-sm text-gray-400 hover:text-red-400 transition">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+        </svg>
+        ออกจากระบบ
+      </button>
+    </div>
+  </aside>
+
+  <div class="flex-1">
+    <header class="bg-white shadow-md p-6 border-b-4 border-sky-500 print:hidden">
+      <h1 id="pageTitle" class="text-xl font-bold text-slate-800">ออกรายงาน</h1>
+    </header>
+
+    <main class="max-w-4xl mx-auto p-6 print:max-w-none print:p-0">
+
+      <!-- แถบเลือกบริษัท / วันที่ / ประเภทเอกสาร (แสดงตั้งแต่แรก ไม่ต้องรอ JS) -->
+      <div id="controls" class="bg-white rounded-lg shadow p-4 mb-4 print:hidden">
+        <div class="flex flex-wrap items-end gap-4">
+          <label class="flex flex-col text-sm text-gray-600">
+            บริษัท
+            <select id="companySelect" class="mt-1 bg-white border border-gray-300 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-500">
+              <option value="">เลือกบริษัท</option>
+            </select>
+          </label>
+          <label class="flex flex-col text-sm text-gray-600">
+            วันที่ให้บริการ
+            <input type="date" id="dateInput" class="mt-1 border border-gray-300 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-500">
+          </label>
+          <div class="flex rounded-lg border border-gray-300 overflow-hidden ml-auto">
+            <button id="modeSummary" onclick="setMode('summary')" class="px-4 py-2 text-sm transition bg-sky-500 text-black font-semibold">ใบสรุปงาน</button>
+            <button id="modeInvoice" onclick="setMode('invoice')" class="px-4 py-2 text-sm transition bg-white text-gray-600 hover:bg-gray-50">ใบเรียกเก็บเงิน</button>
+          </div>
+        </div>
+        <div id="issuedBox" class="hidden mt-3 pt-3 border-t border-gray-100 text-sm"></div>
+      </div>
+
+      <!-- ข้อความสถานะ / error -->
+      <p id="message" class="text-gray-400 text-center py-12 print:hidden">เลือกบริษัทและวันที่ เพื่อดูรายงาน</p>
+
+      <!-- ตัวเอกสาร (ส่วนนี้เท่านั้นที่ถูกพิมพ์) -->
+      <div id="doc" class="hidden bg-white rounded-lg shadow p-8 text-slate-800 print:shadow-none print:p-0 print:rounded-none"></div>
+
+          <div class="flex justify-end gap-3 mt-4 print:hidden">
+        <a id="backBtn" class="hidden px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition">กลับไปหน้ารายงาน</a>
+        <!-- ปุ่มสำหรับใบที่ออกแล้ว -->
+        <button id="deleteBtn" onclick="deleteInvoice()" class="hidden px-4 py-2 rounded-lg border border-red-300 text-red-600 hover:bg-red-50 transition">ยกเลิกใบ</button>
+        <button id="editBtn" onclick="startEdit()" class="hidden px-4 py-2 rounded-lg border border-sky-500 text-sky-600 hover:bg-sky-50 transition">แก้ไข</button>
+        <!-- ปุ่มตอนกำลังแก้ไขใบ -->
+        <button id="cancelEditBtn" onclick="cancelEdit()" class="hidden px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition">ยกเลิกการแก้ไข</button>
+        <button id="saveEditBtn" onclick="saveEdit()" class="hidden bg-sky-500 text-black font-semibold px-4 py-2 rounded-lg hover:bg-sky-400 transition">บันทึกการแก้ไข</button>
+        <button id="issueBtn" onclick="issueInvoice()" class="hidden bg-sky-500 text-black font-semibold px-4 py-2 rounded-lg hover:bg-sky-400 transition">ออกใบเรียกเก็บเงิน</button>
+        <button id="printBtn" onclick="window.print()" class="hidden bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition">พิมพ์ / บันทึก PDF</button>
+      </div>
+
+    </main>
+  </div>
+
+  <script>
+    // ===== ค่าคงที่ =====
+    const OUR_COMPANY = 'บริษัท คูลเทค แอร์เซอร์วิส จำกัด';
+    const VAT_RATE = 0.07;
+
+    // ===== state ของหน้า =====
+    let records = [];        // งานซ่อมของบริษัท/วันที่เลือก
+    let itemsByRecord = {};  // รายการราคาที่แอดมินกรอก แยกตาม id งานซ่อม
+    let mode = 'summary';    // summary = ใบสรุปงาน, invoice = ใบเรียกเก็บเงิน
+    let currentInvoice = null;        // ใบที่กำลังเปิดดู/แก้ไขอยู่
+    let currentInvoiceRecords = [];   // งานซ่อมในใบนั้น
+    let rerender = function () { renderDoc(); }; // ฟังก์ชันวาดหน้าซ้ำตอนกดเพิ่ม/ลบรายการ (สลับตามโหมด)
+
+    const companySelect = document.getElementById('companySelect');
+    const dateInput = document.getElementById('dateInput');
+    const docEl = document.getElementById('doc');
+
+    // ===== ฟังก์ชันช่วย =====
+
+    // กันข้อความที่ผู้ใช้พิมพ์ไปทำให้ HTML พัง
+    function escapeHtml(text) {
+      return String(text == null ? '' : text)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+    // แสดงเงินแบบ 1,234.50
+    function money(n) {
+      return Number(n || 0).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function round2(n) {
+      return Math.round(n * 100) / 100;
+    }
+
+    // แปลง 2026-09-23 เป็น "23 กันยายน 2569"
+    function thaiDate(dateStr) {
+      return new Date(dateStr + 'T00:00:00').toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' });
+    }
+
+    // วันนี้ในรูปแบบ YYYY-MM-DD ตามเวลาเครื่อง
+    function todayStr() {
+      const d = new Date();
+      return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    }
+
+    function unitCode(r) { return r.ac_units ? r.ac_units.code : '-'; }
+    function unitLocation(r) { return (r.ac_units && r.ac_units.location) || '-'; }
+    function unitDetail(r) {
+      if (!r.ac_units) return '';
+      return [r.ac_units.brand, r.ac_units.btu_size ? r.ac_units.btu_size + ' BTU' : ''].filter(Boolean).join(' ');
+    }
+    function techName(r) { return r.profiles ? r.profiles.full_name : '-'; }
+
+    // เปิด/ปิดปุ่มด้านล่าง
+    function setActions(opts) {
+      opts = opts || {};
+      document.getElementById('printBtn').classList.toggle('hidden', !opts.print);
+      document.getElementById('issueBtn').classList.toggle('hidden', !opts.issue);
+      document.getElementById('backBtn').classList.toggle('hidden', !opts.back);
+      document.getElementById('editBtn').classList.toggle('hidden', !opts.edit);
+      document.getElementById('deleteBtn').classList.toggle('hidden', !opts.remove);
+      document.getElementById('saveEditBtn').classList.toggle('hidden', !opts.saveEdit);
+      document.getElementById('cancelEditBtn').classList.toggle('hidden', !opts.cancelEdit);
+    }
+
+    function showMessage(text) {
+      const msg = document.getElementById('message');
+      msg.textContent = text;
+      msg.classList.remove('hidden');
+      docEl.classList.add('hidden');
+      setActions({});
+    }
+
+    function showDoc() {
+      document.getElementById('message').classList.add('hidden');
+      docEl.classList.remove('hidden');
+    }
+
+    // ===== ส่วนประกอบของเอกสาร =====
+
+    function docHeaderHtml(title, docNo, dateText, customer) {
+      const docNoHtml = docNo ? '<p class="text-sm text-gray-600">เลขที่ ' + escapeHtml(docNo) + '</p>' : '';
+      return `
+        <div class="flex justify-between items-start border-b-2 border-sky-500 pb-4 mb-4">
+          <div>
+            <p class="text-lg font-bold">${OUR_COMPANY}</p>
+            <p class="text-sm text-gray-500">บริการซ่อมและบำรุงรักษาเครื่องปรับอากาศ</p>
+          </div>
+          <div class="text-right">
+            <p class="text-xl font-bold text-sky-600">${title}</p>
+            ${docNoHtml}
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-4 mb-6 text-sm">
+          <div>
+            <p class="text-gray-500">ลูกค้า</p>
+            <p class="font-semibold">${escapeHtml(customer)}</p>
+          </div>
+          <div class="text-right">
+            <p class="text-gray-500">วันที่ให้บริการ</p>
+            <p class="font-semibold">${dateText}</p>
+          </div>
+        </div>`;
+    }
+
+    // ตารางใบสรุปงาน (ไม่มีราคา)
+    function summaryTableHtml(list) {
+      const rows = list.map((r, i) => `
+        <tr class="border-b border-gray-200 align-top">
+          <td class="py-2 pr-2">${i + 1}</td>
+          <td class="py-2 pr-2">
+            <p class="font-semibold">${escapeHtml(unitCode(r))}</p>
+            <p class="text-xs text-gray-500">${escapeHtml(unitDetail(r))}</p>
+          </td>
+          <td class="py-2 pr-2">${escapeHtml(unitLocation(r))}</td>
+          <td class="py-2 pr-2">${escapeHtml(r.maintenance_type || '-')}</td>
+          <td class="py-2 pr-2">
+            <p><span class="text-gray-500">ปัญหา:</span> ${escapeHtml(r.problem_description || '-')}</p>
+            <p><span class="text-gray-500">การแก้ไข:</span> ${escapeHtml(r.action_taken || '-')}</p>
+          </td>
+          <td class="py-2 pr-2">${escapeHtml(techName(r))}</td>
+          <td class="py-2">${escapeHtml(r.status || '-')}</td>
+        </tr>`).join('');
+
+      return `
+        <table class="w-full text-sm mb-4">
+          <thead>
+            <tr class="border-b-2 border-gray-300 text-left text-gray-600">
+              <th class="py-2 pr-2">ลำดับ</th>
+              <th class="py-2 pr-2">เครื่อง</th>
+              <th class="py-2 pr-2">สถานที่</th>
+              <th class="py-2 pr-2">ประเภทงาน</th>
+              <th class="py-2 pr-2">รายละเอียด</th>
+              <th class="py-2 pr-2">ช่าง</th>
+              <th class="py-2">สถานะ</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+        <p class="text-sm text-gray-600">รวมทั้งหมด ${list.length} งาน</p>`;
+    }
+
+    // ตารางใบเรียกเก็บเงิน (editable = มีช่องกรอกราคา)
+    function invoiceTableHtml(list, editable) {
+      let body = '';
+
+      list.forEach((r, i) => {
+        body += `
+          <tr class="bg-sky-50">
+            <td colspan="4" class="px-2 py-2">
+              <p class="font-semibold">${i + 1}. ${escapeHtml(unitCode(r))}
+                <span class="font-normal text-gray-500">${escapeHtml(unitDetail(r))}</span></p>
+              <p class="text-xs text-gray-600">สถานที่: ${escapeHtml(unitLocation(r))} | ประเภทงาน: ${escapeHtml(r.maintenance_type || '-')} | ช่าง: ${escapeHtml(techName(r))}</p>
+              <p class="text-xs text-gray-600">ปัญหา: ${escapeHtml(r.problem_description || '-')} / การแก้ไข: ${escapeHtml(r.action_taken || '-')}</p>
+            </td>
+          </tr>`;
+
+        const rows = editable ? (itemsByRecord[r.id] || []) : (r.repair_items || []);
+
+        rows.forEach((item, idx) => {
+          const amount = Number(item.quantity || 0) * Number(item.unit_price || 0);
+
+          if (editable) {
+            body += `
+              <tr class="border-b border-gray-100">
+                <td class="px-2 py-1">
+                  <input data-rid="${r.id}" data-idx="${idx}" data-field="description"
+                         value="${escapeHtml(item.description)}" placeholder="เช่น ค่าแรงล้างแอร์"
+                         class="w-full border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-sky-500">
+                </td>
+                <td class="px-2 py-1 w-20">
+                  <input type="number" min="1" step="1" data-rid="${r.id}" data-idx="${idx}" data-field="quantity"
+                         value="${escapeHtml(item.quantity)}"
+                         class="w-full border border-gray-300 rounded px-2 py-1 text-right focus:outline-none focus:ring-2 focus:ring-sky-500">
+                </td>
+                <td class="px-2 py-1 w-32">
+                  <input type="number" min="0" step="0.01" data-rid="${r.id}" data-idx="${idx}" data-field="unit_price"
+                         value="${escapeHtml(item.unit_price)}"
+                         class="w-full border border-gray-300 rounded px-2 py-1 text-right focus:outline-none focus:ring-2 focus:ring-sky-500">
+                </td>
+                <td class="px-2 py-1 w-40 text-right whitespace-nowrap">
+                  <span id="amt-${r.id}-${idx}">${money(amount)}</span>
+                  <button data-remove="1" data-rid="${r.id}" data-idx="${idx}" title="ลบรายการ"
+                          class="ml-2 align-middle text-gray-400 hover:text-red-500">
+                    <svg class="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </td>
+              </tr>`;
+          } else {
+            body += `
+              <tr class="border-b border-gray-100">
+                <td class="px-2 py-1 pl-6">${escapeHtml(item.description)}</td>
+                <td class="px-2 py-1 text-right">${Number(item.quantity)}</td>
+                <td class="px-2 py-1 text-right">${money(item.unit_price)}</td>
+                <td class="px-2 py-1 text-right">${money(amount)}</td>
+              </tr>`;
+          }
+        });
+
+        if (!editable && rows.length === 0) {
+          body += '<tr><td colspan="4" class="px-2 py-1 pl-6 text-gray-400">ไม่มีค่าใช้จ่าย</td></tr>';
+        }
+        if (editable) {
+          body += `
+            <tr>
+              <td colspan="4" class="px-2 py-1">
+                <button data-add="1" data-rid="${r.id}" class="text-sm text-sky-600 hover:text-sky-800">+ เพิ่มรายการ</button>
+              </td>
+            </tr>`;
+        }
+      });
+
+      return `
+        <table class="w-full text-sm mb-4">
+          <thead>
+            <tr class="border-b-2 border-gray-300 text-left text-gray-600">
+              <th class="px-2 py-2">รายการ</th>
+              <th class="px-2 py-2 text-right">จำนวน</th>
+              <th class="px-2 py-2 text-right">ราคา/หน่วย</th>
+              <th class="px-2 py-2 text-right">จำนวนเงิน</th>
+            </tr>
+          </thead>
+          <tbody>${body}</tbody>
+        </table>`;
+    }
+
+    function totalsHtml(subtotal, vat, total) {
+      return `
+        <div class="flex justify-end mb-4">
+          <table class="text-sm w-72">
+            <tr><td class="py-1 text-gray-600">รวมเป็นเงิน</td><td id="subtotal" class="py-1 text-right">${money(subtotal)}</td></tr>
+            <tr><td class="py-1 text-gray-600">ภาษีมูลค่าเพิ่ม 7%</td><td id="vat" class="py-1 text-right">${money(vat)}</td></tr>
+            <tr class="border-t-2 border-slate-800 font-bold">
+              <td class="py-2">ยอดสุทธิ</td><td id="total" class="py-2 text-right">${money(total)} บาท</td>
+            </tr>
+          </table>
+        </div>`;
+    }
+
+    function signaturesHtml() {
+      function box(label) {
+        return `
+          <div>
+            <div class="border-b border-gray-400 h-12"></div>
+            <p class="mt-2">${label}</p>
+            <p class="text-gray-500">วันที่ ......../......../........</p>
+          </div>`;
+      }
+      return '<div class="grid grid-cols-2 gap-12 mt-12 text-sm text-center">' + box('ผู้ให้บริการ') + box('ผู้รับบริการ') + '</div>';
+    }
+
+    // ===== คำนวณยอด =====
+
+    function computeTotals() {
+      let subtotal = 0;
+      Object.values(itemsByRecord).forEach(rows => {
+        rows.forEach(row => {
+          subtotal += Number(row.quantity || 0) * Number(row.unit_price || 0);
+        });
+      });
+      subtotal = round2(subtotal);
+      const vat = round2(subtotal * VAT_RATE);
+      return { subtotal: subtotal, vat: vat, total: round2(subtotal + vat) };
+    }
+
+    // อัปเดตแค่ตัวเลขยอดรวม ไม่วาดหน้าใหม่ (ช่องที่กำลังพิมพ์จะได้ไม่หลุด)
+    function updateTotals() {
+      const t = computeTotals();
+      document.getElementById('subtotal').textContent = money(t.subtotal);
+      document.getElementById('vat').textContent = money(t.vat);
+      document.getElementById('total').textContent = money(t.total) + ' บาท';
+    }
+
+    // ===== โหมดสร้างรายงาน =====
+
+    async function loadCompanyOptions(selected) {
+      const response = await fetch('/api/companies');
+      if (!response.ok) return;
+      const companies = await response.json();
+
+      companies
+        .map(c => c.client_company)
+        .filter(Boolean)
+        .sort((a, b) => a.localeCompare(b, 'th'))
+        .forEach(name => {
+          const option = document.createElement('option');
+          option.value = name;
+          option.textContent = name;
+          companySelect.appendChild(option);
+        });
+
+      if (selected) companySelect.value = selected;
+    }
+
+    function setMode(newMode) {
+      mode = newMode;
+      const active = 'bg-sky-500 text-black font-semibold';
+      const inactive = 'bg-white text-gray-600 hover:bg-gray-50';
+      document.getElementById('modeSummary').className = 'px-4 py-2 text-sm transition ' + (mode === 'summary' ? active : inactive);
+      document.getElementById('modeInvoice').className = 'px-4 py-2 text-sm transition ' + (mode === 'invoice' ? active : inactive);
+      saveToUrl();
+      if (companySelect.value) renderDoc();
+    }
+
+    function saveToUrl() {
+      const params = new URLSearchParams();
+      if (companySelect.value) params.set('company', companySelect.value);
+      if (dateInput.value) params.set('date', dateInput.value);
+      if (mode === 'invoice') params.set('mode', 'invoice');
+      history.replaceState(null, '', 'report.html?' + params.toString());
+    }
+
+    async function loadReport() {
+      saveToUrl();
+      document.getElementById('issuedBox').classList.add('hidden');
+
+      const company = companySelect.value;
+      const date = dateInput.value;
+      if (!company || !date) {
+        showMessage('เลือกบริษัทและวันที่ เพื่อดูรายงาน');
+        return;
+      }
+
+      showMessage('กำลังโหลด...');
+      const response = await fetch('/api/report?company=' + encodeURIComponent(company) + '&date=' + date);
+      if (!response.ok) {
+        // บอก error จาก server ตรงๆ จะได้รู้ว่าติดอะไร
+        const err = await response.json().catch(() => ({}));
+        showMessage('โหลดข้อมูลไม่สำเร็จ: ' + (err.error || response.status));
+        return;
+      }
+      records = await response.json();
+
+      // เตรียมแถวกรอกราคาว่าง 1 แถว ให้ทุกงานที่ยังไม่ออกใบ
+      itemsByRecord = {};
+      records.forEach(r => {
+        if (!r.invoice_id) itemsByRecord[r.id] = [{ description: '', quantity: 1, unit_price: 0 }];
+      });
+
+      renderIssued();
+      renderDoc();
+    }
+
+    function renderIssued() {
+      const box = document.getElementById('issuedBox');
+      const issued = {};
+      records.forEach(r => { if (r.invoices) issued[r.invoices.id] = r.invoices.invoice_no; });
+
+      const ids = Object.keys(issued);
+      if (ids.length === 0) {
+        box.classList.add('hidden');
+        return;
+      }
+      box.innerHTML = '<span class="text-gray-500">ใบเรียกเก็บเงินที่ออกแล้ว:</span> ' +
+        ids.map(id => '<a href="report.html?invoice=' + id + '" class="text-sky-600 hover:text-sky-800 font-medium ml-2">' + escapeHtml(issued[id]) + '</a>').join('');
+      box.classList.remove('hidden');
+    }
+
+    function renderDoc() {
+      const company = companySelect.value;
+      const date = dateInput.value;
+      const noWorkText = 'ไม่มีงานซ่อมของ ' + company + ' ในวันที่ ' + thaiDate(date);
+
+      if (mode === 'summary') {
+        if (records.length === 0) return showMessage(noWorkText);
+
+        docEl.innerHTML = docHeaderHtml('ใบสรุปงานบริการ', '', thaiDate(date), company)
+          + summaryTableHtml(records)
+          + signaturesHtml();
+        showDoc();
+        setActions({ print: true });
+        return;
+      }
+
+      // โหมดใบเรียกเก็บเงิน: ใช้เฉพาะงานที่ยังไม่ออกใบ
+      const pending = records.filter(r => !r.invoice_id);
+      if (pending.length === 0) {
+        return showMessage(records.length
+          ? 'งานทุกรายการของวันนี้ออกใบเรียกเก็บเงินแล้ว กดเลขที่ใบด้านบนเพื่อดู แก้ไข หรือยกเลิกใบ'
+          : noWorkText);
+      }
+
+      const t = computeTotals();
+      docEl.innerHTML = docHeaderHtml('ใบแจ้งหนี้ / ใบเรียกเก็บเงิน', 'จะออกเลขที่เมื่อบันทึก', thaiDate(date), company)
+        + invoiceTableHtml(pending, true)
+        + totalsHtml(t.subtotal, t.vat, t.total);
+      showDoc();
+      setActions({ issue: true });
+    }
+
+    // รวบรวมรายการราคาจากช่องที่กรอก ใช้ทั้งตอนออกใบและตอนแก้ไขใบ
+    // คืนค่า array ของรายการ หรือ null ถ้ากรอกไม่ครบ (จะเด้งแจ้งเตือนให้เอง)
+    function collectItems() {
+      const items = [];
+      for (const recordId of Object.keys(itemsByRecord)) {
+        for (const row of itemsByRecord[recordId]) {
+          const description = String(row.description || '').trim();
+          if (!description && !Number(row.unit_price)) continue; // แถวว่าง ข้าม
+
+          if (!description || !(Number(row.quantity) > 0) || !(Number(row.unit_price) >= 0)) {
+            alert('มีรายการที่กรอกไม่ครบ กรุณาใส่ชื่อรายการ จำนวน และราคาให้ครบ');
+            return null;
+          }
+          items.push({
+            maintenance_record_id: recordId,
+            description: description,
+            quantity: Number(row.quantity),
+            unit_price: Number(row.unit_price)
+          });
+        }
+      }
+      if (items.length === 0) {
+        alert('กรุณาเพิ่มรายการค่าใช้จ่ายอย่างน้อย 1 รายการ');
+        return null;
+      }
+      return items;
+    }
+
+    // ออกใบเรียกเก็บเงินใหม่ แล้วพาไปหน้าดู/พิมพ์ใบ
+    async function issueInvoice() {
+      const items = collectItems();
+      if (!items) return;
+
+      const t = computeTotals();
+      if (!confirm('ยืนยันออกใบเรียกเก็บเงิน ยอดสุทธิ ' + money(t.total) + ' บาท?')) return;
+
+      const btn = document.getElementById('issueBtn');
+      btn.disabled = true;
+      btn.textContent = 'กำลังบันทึก...';
+
+      const response = await fetch('/api/invoices', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ company: companySelect.value, date: dateInput.value, items: items })
+      });
+      const result = await response.json().catch(() => ({}));
+
+      btn.disabled = false;
+      btn.textContent = 'ออกใบเรียกเก็บเงิน';
+
+      if (!response.ok) {
+        alert(result.error || 'บันทึกไม่สำเร็จ');
+        return;
+      }
+
+      window.location.href = 'report.html?invoice=' + result.id;
+    }
+
+    // จับการพิมพ์ในช่องราคา
+    docEl.addEventListener('input', function (e) {
+      const el = e.target;
+      if (!el.dataset || !el.dataset.field) return;
+
+      const row = itemsByRecord[el.dataset.rid][el.dataset.idx];
+      row[el.dataset.field] = el.value;
+
+      const amount = Number(row.quantity || 0) * Number(row.unit_price || 0);
+      document.getElementById('amt-' + el.dataset.rid + '-' + el.dataset.idx).textContent = money(amount);
+      updateTotals();
+    });
+
+    // จับการกดปุ่ม เพิ่ม/ลบรายการ
+    docEl.addEventListener('click', function (e) {
+      const addBtn = e.target.closest('[data-add]');
+      if (addBtn) {
+        itemsByRecord[addBtn.dataset.rid].push({ description: '', quantity: 1, unit_price: 0 });
+        rerender();
+        return;
+      }
+      const removeBtn = e.target.closest('[data-remove]');
+      if (removeBtn) {
+        itemsByRecord[removeBtn.dataset.rid].splice(Number(removeBtn.dataset.idx), 1);
+        rerender();
+      }
+    });
+
+    companySelect.addEventListener('change', loadReport);
+    dateInput.addEventListener('change', loadReport);
+
+    // ===== โหมดดูใบที่ออกแล้ว (report.html?invoice=id) =====
+
+    async function showInvoice(id) {
+      document.getElementById('controls').classList.add('hidden');
+      showMessage('กำลังโหลด...');
+
+      const response = await fetch('/api/invoices/' + encodeURIComponent(id));
+      if (!response.ok) {
+        showMessage('ไม่พบใบเรียกเก็บเงินนี้ (อาจถูกยกเลิกไปแล้ว)');
+        return;
+      }
+      const result = await response.json();
+      currentInvoice = result.invoice;
+      currentInvoiceRecords = result.records;
+
+      document.getElementById('pageTitle').textContent = 'ใบเรียกเก็บเงิน ' + currentInvoice.invoice_no;
+      document.title = currentInvoice.invoice_no; // ใช้เป็นชื่อไฟล์ตอนบันทึก PDF
+
+      // ปุ่มกลับ พาไปหน้ารายงานของบริษัท/วันเดียวกัน
+      document.getElementById('backBtn').href =
+        'report.html?company=' + encodeURIComponent(currentInvoice.client_company) + '&date=' + currentInvoice.service_date + '&mode=invoice';
+
+      renderInvoiceView();
+    }
+
+    // แสดงใบแบบอ่านอย่างเดียว (พร้อมพิมพ์)
+    function renderInvoiceView() {
+      const inv = currentInvoice;
+      docEl.innerHTML = docHeaderHtml('ใบแจ้งหนี้ / ใบเรียกเก็บเงิน', inv.invoice_no, thaiDate(inv.service_date), inv.client_company)
+        + invoiceTableHtml(currentInvoiceRecords, false)
+        + totalsHtml(inv.subtotal, inv.vat, inv.total)
+        + signaturesHtml();
+      showDoc();
+      setActions({ print: true, back: true, edit: true, remove: true });
+    }
+
+    // กดแก้ไข: เอารายการเดิมมาใส่ช่องกรอก
+    function startEdit() {
+      itemsByRecord = {};
+      currentInvoiceRecords.forEach(r => {
+        const oldItems = (r.repair_items || []).map(i => ({
+          description: i.description,
+          quantity: i.quantity,
+          unit_price: i.unit_price
+        }));
+        // งานที่ยังไม่มีรายการ ใส่แถวว่างให้ 1 แถว
+        itemsByRecord[r.id] = oldItems.length > 0 ? oldItems : [{ description: '', quantity: 1, unit_price: 0 }];
+      });
+      rerender = renderEditView;
+      renderEditView();
+    }
+
+    // วาดหน้าโหมดแก้ไข (ช่องกรอกเหมือนตอนออกใบ แต่เลขที่ใบคงเดิม)
+    function renderEditView() {
+      const inv = currentInvoice;
+      const t = computeTotals();
+      docEl.innerHTML = docHeaderHtml('ใบแจ้งหนี้ / ใบเรียกเก็บเงิน', inv.invoice_no + ' (กำลังแก้ไข)', thaiDate(inv.service_date), inv.client_company)
+        + invoiceTableHtml(currentInvoiceRecords, true)
+        + totalsHtml(t.subtotal, t.vat, t.total);
+      showDoc();
+      setActions({ saveEdit: true, cancelEdit: true });
+    }
+
+    // ยกเลิกการแก้ไข กลับไปหน้าดูใบเหมือนเดิม
+    function cancelEdit() {
+      rerender = function () { renderDoc(); };
+      renderInvoiceView();
+    }
+
+    // บันทึกการแก้ไข
+    async function saveEdit() {
+      const items = collectItems();
+      if (!items) return;
+
+      const t = computeTotals();
+      if (!confirm('บันทึกการแก้ไข ยอดสุทธิใหม่ ' + money(t.total) + ' บาท?')) return;
+
+      const btn = document.getElementById('saveEditBtn');
+      btn.disabled = true;
+      btn.textContent = 'กำลังบันทึก...';
+
+      const response = await fetch('/api/invoices/' + currentInvoice.id, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ items: items })
+      });
+      const result = await response.json().catch(() => ({}));
+
+      btn.disabled = false;
+      btn.textContent = 'บันทึกการแก้ไข';
+
+      if (!response.ok) {
+        alert(result.error || 'บันทึกไม่สำเร็จ');
+        return;
+      }
+
+      // โหลดใบใหม่จาก server ให้ตัวเลขตรงกับที่บันทึกจริง
+      rerender = function () { renderDoc(); };
+      await showInvoice(currentInvoice.id);
+    }
+
+    // ยกเลิกใบ: ลบใบ แล้วงานซ่อมจะกลับไปออกใบใหม่ได้
+    async function deleteInvoice() {
+      if (!confirm('ยกเลิกใบ ' + currentInvoice.invoice_no + '?\nงานซ่อมในใบนี้จะกลับไปเป็นยังไม่ออกใบ และออกใบใหม่ได้')) return;
+
+      const response = await fetch('/api/invoices/' + currentInvoice.id, { method: 'DELETE' });
+      const result = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        alert(result.error || 'ยกเลิกใบไม่สำเร็จ');
+        return;
+      }
+
+      alert('ยกเลิกใบ ' + currentInvoice.invoice_no + ' แล้ว');
+      // กลับไปหน้ารายงานของบริษัท/วันเดิม จะเห็นงานพร้อมให้ออกใบใหม่
+      window.location.href = document.getElementById('backBtn').href;
+    }
+
+    // ===== เริ่มต้นหน้า =====
+
+    async function init() {
+      const params = new URLSearchParams(window.location.search);
+
+      const invoiceId = params.get('invoice');
+      if (invoiceId) {
+        await showInvoice(invoiceId);
+        return;
+      }
+
+      dateInput.value = params.get('date') || todayStr();
+      mode = params.get('mode') === 'invoice' ? 'invoice' : 'summary';
+      await loadCompanyOptions(params.get('company'));
+      setMode(mode);
+      await loadReport();
+    }
+
+    async function checkAuth() {
+      const response = await fetch('/api/me');
+
+      if (!response.ok) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      const user = await response.json();
+
+      if (user.role !== 'admin') {
+        window.location.href = 'technician.html';
+        return;
+      }
+
+      document.getElementById('userInfo').textContent = user.full_name;
+      init();
+    }
+
+    async function logout() {
+      await fetch('/api/logout', { method: 'POST' });
+      window.location.href = 'login.html';
+    }
+
+    // ถ้ามี error ที่ไหนก็ตาม ให้โชว์บนหน้าจอเลย ไม่ต้องเปิด F12
+    window.addEventListener('error', function (e) {
+      showMessage('เกิดข้อผิดพลาด: ' + e.message);
+    });
+    window.addEventListener('unhandledrejection', function (e) {
+      showMessage('เกิดข้อผิดพลาด: ' + (e.reason && e.reason.message ? e.reason.message : e.reason));
+    });
+
+    checkAuth();
+  </script>
+
+</body>
+</html>

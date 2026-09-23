@@ -168,33 +168,27 @@ app.get('/api/maintenance/:acUnitId', async (req, res) => {
   res.json(data);
 });
 
-app.get('/api/maintenance/:acUnitId', async (req, res) => {
-  const { acUnitId } = req.params;
-
-  const { data, error } = await supabase
-    .from('maintenance_records')
-    .select('*, profiles(full_name)')
-    .eq('ac_unit_id', acUnitId)
-    .order('maintenance_date', { ascending: false });
-
-  if (error) {
-    return res.status(500).json({ error: error.message });
-  }
-  res.json(data);
-});
-
-// ===== วางโค้ดใหม่ตรงนี้ =====
 // ดึงประวัติการซ่อมทั้งหมด (ข้ามทุกบริษัท) สำหรับ Admin ดูภาพรวมล่าสุด
+// ถ้าส่ง ?company=ชื่อบริษัท มา จะกรองเหลือเฉพาะบริษัทนั้น
 app.get('/api/maintenance-feed', async (req, res) => {
   if (!req.session.user || req.session.user.role !== 'admin') {
     return res.status(403).json({ error: 'เฉพาะแอดมินเท่านั้นที่เข้าถึงได้' });
   }
 
-  const { data, error } = await supabase
+  const { company } = req.query;
+
+  let query = supabase
     .from('maintenance_records')
-    .select('*, ac_units(code, client_company), profiles(full_name)')
+    // ac_units!inner เพื่อให้กรองด้วยคอลัมน์ของ ac_units ได้
+    .select('*, ac_units!inner(code, client_company), profiles(full_name)')
     .order('created_at', { ascending: false })
     .limit(50);
+
+  if (company) {
+    query = query.eq('ac_units.client_company', company);
+  }
+
+  const { data, error } = await query;
 
   if (error) {
     return res.status(500).json({ error: error.message });
@@ -311,6 +305,68 @@ app.delete('/api/schedules/:id', async (req, res) => {
   res.json({ message: 'ลบข้อมูลสำเร็จ' });
 });
 
+// แก้ไขรายการราคาในใบที่ออกไปแล้ว (เลขที่ใบคงเดิม)
+// body: { items: [{ maintenance_record_id, description, quantity, unit_price }] }
+app.put('/api/invoices/:id', async (req, res) => {
+  if (!req.session.user || req.session.user.role !== 'admin') {
+    return res.status(403).json({ error: 'เฉพาะแอดมินเท่านั้นที่ทำรายการนี้ได้' });
+  }
+
+  const { id } = req.params;
+  const { items } = req.body;
+  if (!Array.isArray(items)) {
+    return res.status(400).json({ error: 'ข้อมูลไม่ครบ' });
+  }
+
+  // 1) หางานซ่อมที่อยู่ในใบนี้
+  const { data: records, error: recError } = await supabase
+    .from('maintenance_records')
+    .select('id')
+    .eq('invoice_id', id);
+
+  if (recError) {
+    return res.status(500).json({ error: recError.message });
+  }
+  if (records.length === 0) {
+    return res.status(404).json({ error: 'ไม่พบใบเรียกเก็บเงินนี้' });
+  }
+  const recordIds = records.map(r => r.id);
+
+  // 2) ตรวจรายการ + คำนวณยอดใหม่
+  const checked = checkItems(items, recordIds);
+  if (checked.error) {
+    return res.status(400).json({ error: checked.error });
+  }
+
+  // 3) ลบรายการเก่าของใบนี้ แล้วใส่รายการใหม่แทน
+  const { error: delError } = await supabase
+    .from('repair_items')
+    .delete()
+    .in('maintenance_record_id', recordIds);
+
+  if (delError) {
+    return res.status(500).json({ error: delError.message });
+  }
+
+  const { error: itemError } = await supabase.from('repair_items').insert(checked.cleanItems);
+  if (itemError) {
+    return res.status(500).json({ error: itemError.message });
+  }
+
+  // 4) อัปเดตยอดเงินในใบ
+  const { data: invoice, error: invError } = await supabase
+    .from('invoices')
+    .update({ subtotal: checked.subtotal, vat: checked.vat, total: checked.total })
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (invError) {
+    return res.status(500).json({ error: invError.message });
+  }
+  res.json(invoice);
+});
+
 // ==================== API ระบบ Login ====================
 
 app.post('/api/login', async (req, res) => {
@@ -358,5 +414,6 @@ app.get('/api/me', (req, res) => {
 // ==================== เริ่มรัน Server ====================
 
 app.listen(PORT, () => {
-  console.log(`Server กำลังทำงานที่ http://localhost:${PORT}`);
+  // มีคำว่า v2 ไว้เช็คว่ากำลังรันไฟล์เวอร์ชันใหม่จริง
+  console.log(`Server กำลังทำงานที่ http://localhost:${PORT} (v2 รายงาน+ใบเรียกเก็บเงิน)`);
 });
