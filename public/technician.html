@@ -4,48 +4,88 @@
   <meta charset="UTF-8">
   <title>งานที่ต้องดำเนินการ</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Kanit', sans-serif; }
+    .hover-lift {
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .hover-lift:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    }
+  </style>
 </head>
 <body class="bg-sky-50 min-h-screen">
 
-  <!-- ===== header เต็มความกว้าง อยู่บนสุด ===== -->
+  <!-- header เต็มความกว้าง อยู่บนสุดเหมือนหน้าอื่น -->
   <header class="bg-black text-sky-400 p-6 shadow-md flex justify-between items-center border-b-4 border-sky-500">
-    <div>
-      <h1 class="text-2xl font-bold">❄️ CoolTrack</h1>
-      <p class="text-gray-300">บริษัท คูลเทค แอร์เซอร์วิส จำกัด</p>
+    <div class="flex items-center gap-3">
+      <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" />
+      </svg>
+      <div>
+        <h1 class="text-2xl font-bold">ระบบเก็บประวัติการซ่อมเครื่องปรับอากาศ</h1>
+        <p class="text-gray-300 text-sm">บริษัท คูลเทค แอร์เซอร์วิส จำกัด</p>
+      </div>
     </div>
-    <div class="text-right">
-      <p id="userInfo" class="text-sm text-gray-300">กำลังโหลด...</p>
-      <button onclick="logout()" class="mt-1 bg-red-600 hover:bg-red-700 text-white text-sm px-3 py-1 rounded">
-        ออกจากระบบ
-      </button>
+    <!-- โปรไฟล์ช่าง + ปุ่ม logout ชิดขวาสุด -->
+    <div>
+      <div class="flex items-center gap-3 mb-2">
+        <div class="w-9 h-9 rounded-full bg-sky-500 flex items-center justify-center font-bold text-black flex-shrink-0">
+          T
+        </div>
+        <div>
+          <p id="userInfo" class="text-sm font-medium text-white">กำลังโหลด...</p>
+          <p class="text-xs text-gray-400">ช่างซ่อมบำรุง</p>
+        </div>
+      </div>
+      <div class="flex justify-end">
+        <button onclick="logout()" class="flex items-center gap-2 text-sm text-gray-400 hover:text-red-400 transition">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+          ออกจากระบบ
+        </button>
+      </div>
     </div>
   </header>
 
-  <!-- ===== ส่วนล่าง Header: แถบแผนตรวจเช็ค + เนื้อหาหลัก อยู่ข้างกัน ===== -->
+  <!-- แถบแผนตรวจเช็คแยกโซนซ้ายสุด + เนื้อหาหลักด้านขวา -->
   <div class="flex">
 
-    <!-- แถบซ้ายสุด: แผนตรวจเช็คที่แอดมินประกาศไว้ (โซนแยกของตัวเอง) -->
     <aside id="scheduleSection" class="w-72 bg-sky-100 min-h-screen p-4 flex-shrink-0 hidden">
-      <h2 class="text-slate-800 font-bold text-lg mb-4">📅 แผนตรวจเช็ค</h2>
+      <h2 class="text-slate-800 font-bold text-lg mb-4 flex items-center gap-2">
+        <svg class="w-5 h-5 text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+        แผนตรวจเช็ค
+      </h2>
       <div id="scheduleList" class="space-y-2"></div>
     </aside>
 
-    <!-- เนื้อหาหลัก -->
     <main class="flex-1 max-w-4xl mx-auto p-6">
 
-      <h2 class="text-xl font-semibold text-slate-800 mb-4">เครื่องปรับอากาศที่ต้องซ่อม</h2>
+      <h2 class="text-xl font-semibold text-slate-800 mb-4">เครื่องปรับอากาศที่ต้องดำเนินการ</h2>
 
-      <!-- การ์ดงานที่ต้องซ่อมจะถูกสร้างเพิ่มตรงนี้ด้วย js -->
       <div id="unitList" class="space-y-3"></div>
 
-      <p id="emptyMsg" class="text-gray-400 text-center py-12 hidden">🎉 ไม่มีงานค้างในขณะนี้ ทุกเครื่องอยู่ในสถานะปกติ</p>
+      <!-- โชว์แบบนี้ตอนไม่มีงานค้างเลย ให้รู้สึกดีกว่าเห็นหน้าว่างเปล่าเฉยๆ -->
+      <div id="emptyMsg" class="text-gray-400 text-center py-12 hidden">
+        <svg class="w-12 h-12 mx-auto mb-2 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+        </svg>
+        ไม่มีงานค้างในขณะนี้ ทุกเครื่องอยู่ในสถานะปกติ
+      </div>
 
     </main>
 
   </div>
 
   <script>
-    // ===== โหลดแผนตรวจเช็คที่แอดมินประกาศไว้ มาแสดงในแถบซ้ายสุด =====
+    // ดึงแผนตรวจเช็คมาโชว์ ถ้าไม่มีเลยก็ซ่อนแถบนี้ไปเลย ไม่เปลืองพื้นที่
     async function loadSchedules() {
       const response = await fetch('/api/schedules');
       const data = await response.json();
@@ -53,7 +93,6 @@
       const scheduleSection = document.getElementById('scheduleSection');
       const scheduleList = document.getElementById('scheduleList');
 
-      // ถ้าไม่มีแผนเลย ไม่ต้องแสดงแถบนี้เลย
       if (data.length === 0) {
         scheduleSection.classList.add('hidden');
         return;
@@ -74,7 +113,7 @@
       });
     }
 
-    // ===== โหลดเครื่องที่ต้องซ่อม/รอเปลี่ยน ทุกบริษัท =====
+    // ดึงเครื่องที่ต้องซ่อม/รอเปลี่ยนทุกบริษัท ให้ช่างเห็นงานที่ต้องทำวันนี้
     async function loadUnits() {
       const response = await fetch('/api/ac-units/need-attention');
       const data = await response.json();
@@ -94,13 +133,14 @@
           ? 'bg-red-100 text-red-700'
           : 'bg-yellow-100 text-yellow-700';
 
+        // ถ้าแอดมินเขียนหมายเหตุไว้ตอนเปลี่ยนสถานะ ก็โชว์ให้ช่างเห็นตรงนี้
         const noteBox = item.note
-          ? `<p class="text-sm text-orange-700 bg-orange-50 border border-orange-200 rounded px-2 py-1 mt-2">📝 ${item.note}</p>`
+          ? `<p class="text-sm text-orange-700 bg-orange-50 border border-orange-200 rounded px-2 py-1 mt-2">${item.note}</p>`
           : '';
 
         const card = document.createElement('a');
         card.href = `maintenance.html?id=${item.id}&code=${encodeURIComponent(item.code)}`;
-        card.className = 'bg-white rounded-lg shadow p-4 flex justify-between items-center hover:shadow-lg transition block';
+        card.className = 'hover-lift bg-white rounded-lg shadow p-4 flex justify-between items-center transition block';
 
         card.innerHTML = `
           <div class="flex-1">
@@ -113,13 +153,14 @@
             <p class="text-sm text-gray-500 mt-1">${item.brand || '-'} · ${item.btu_size ? item.btu_size + ' BTU' : '-'}</p>
             ${noteBox}
           </div>
-          <span class="text-gray-400">&rarr;</span>
+          <svg class="w-5 h-5 text-gray-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+          </svg>
         `;
         unitList.appendChild(card);
       });
     }
 
-    // ===== เช็ค login =====
     async function checkAuth() {
       const response = await fetch('/api/me');
 
@@ -129,7 +170,7 @@
       }
 
       const user = await response.json();
-      document.getElementById('userInfo').textContent = `${user.full_name} (ช่างซ่อมบำรุง)`;
+      document.getElementById('userInfo').textContent = user.full_name;
 
       loadSchedules();
       loadUnits();

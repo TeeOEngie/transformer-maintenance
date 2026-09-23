@@ -4,35 +4,84 @@
   <meta charset="UTF-8">
   <title>บริษัทลูกค้า</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Kanit', sans-serif; }
+    .hover-lift {
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .hover-lift:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    }
+  </style>
 </head>
 <body class="bg-sky-50 min-h-screen flex">
 
-  <!-- ===== sidebar เมนูซ้าย ===== -->
-  <aside class="w-56 bg-black text-white min-h-screen p-4 flex-shrink-0">
-    <h2 class="text-sky-400 font-bold text-lg mb-6">❄️ CoolTrack</h2>
-    <nav class="space-y-2">
-      <a href="index.html" class="block px-3 py-2 rounded hover:bg-gray-800">🏠 หน้าหลัก</a>
-      <a href="companies.html" class="block px-3 py-2 rounded bg-sky-500 text-black font-semibold">🏢 บริษัทลูกค้า</a>
-      <a href="activity.html" class="block px-3 py-2 rounded hover:bg-gray-800">📋 งานซ่อมล่าสุด</a>
-      <a href="schedule.html" class="block px-3 py-2 rounded hover:bg-gray-800">📅 แผนตรวจเช็ค</a>
+  <!-- sidebar เมนูซ้าย เหมือนทุกหน้า แค่ไฮไลท์เมนูให้ตรงกับหน้านี้ -->
+  <aside class="w-64 bg-black text-white min-h-screen flex flex-col flex-shrink-0">
+
+    <div class="p-5 flex items-center gap-3 border-b border-gray-700">
+      <svg class="w-7 h-7 text-sky-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" />
+      </svg>
+      <h2 class="font-bold text-lg text-sky-400">CoolTrack</h2>
+    </div>
+
+    <nav class="flex-1 p-4 space-y-1">
+      <a href="index.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-300 hover:bg-gray-800 transition">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+        </svg>
+        หน้าหลัก
+      </a>
+      <a href="companies.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-sky-500 text-black font-semibold">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2M5 21H3m16 0h-2M9 7h1m-1 4h1m-1 4h1m4-8h1m-1 4h1m-1 4h1" />
+        </svg>
+        บริษัทลูกค้า
+      </a>
+      <a href="activity.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-300 hover:bg-gray-800 transition">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+        </svg>
+        งานซ่อมล่าสุด
+      </a>
+      <a href="schedule.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-300 hover:bg-gray-800 transition">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+        แผนตรวจเช็ค
+      </a>
     </nav>
+
+    <div class="p-4 border-t border-gray-700">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="w-9 h-9 rounded-full bg-sky-500 flex items-center justify-center font-bold text-black">A</div>
+        <div>
+          <p id="userInfo" class="text-sm font-medium">กำลังโหลด...</p>
+          <p class="text-xs text-gray-400">แอดมิน</p>
+        </div>
+      </div>
+      <button onclick="logout()" class="flex items-center gap-2 text-sm text-gray-400 hover:text-red-400 transition">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+        </svg>
+        ออกจากระบบ
+      </button>
+    </div>
   </aside>
 
-  <!-- ===== เนื้อหาหลัก ===== -->
   <div class="flex-1">
-    <header class="bg-white shadow-md p-6 flex justify-between items-center border-b-4 border-sky-500">
+    <header class="bg-white shadow-md p-6 border-b-4 border-sky-500">
       <h1 class="text-xl font-bold text-slate-800">รายชื่อบริษัทลูกค้า</h1>
-      <div class="text-right">
-        <p id="userInfo" class="text-sm text-gray-500">กำลังโหลด...</p>
-        <button onclick="logout()" class="mt-1 bg-red-600 hover:bg-red-700 text-white text-sm px-3 py-1 rounded">
-          ออกจากระบบ
-        </button>
-      </div>
     </header>
 
-        <main class="max-w-5xl mx-auto p-6">
+    <main class="max-w-5xl mx-auto p-6">
 
-      <!-- การ์ดสรุปตัวเลขภาพรวม -->
+      <!-- การ์ดสรุปตัวเลขให้เห็นภาพรวมเร็วๆ ก่อนไล่ดูรายชื่อ -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div class="bg-white rounded-lg shadow p-5 border-l-4 border-sky-500">
           <p class="text-gray-500 text-sm">บริษัทลูกค้าทั้งหมด</p>
@@ -48,7 +97,7 @@
         </div>
       </div>
 
-      <!-- ตรงนี้จะเอาการ์ดบริษัทมาใส่ทีหลังด้วย js -->
+      <!-- รายชื่อบริษัทเป็นการ์ด กดแล้วไปดูเครื่องแอร์ของบริษัทนั้น -->
       <div id="companyList" class="grid grid-cols-1 md:grid-cols-2 gap-4">
       </div>
 
@@ -56,12 +105,12 @@
   </div>
 
   <script>
-    // ดึงรายชื่อบริษัทจาก api แล้วเอามาสร้างเป็นการ์ด
+    // ดึงบริษัททั้งหมดมา พร้อมนับจำนวนเครื่องที่ต้องซ่อม/รอเปลี่ยนไปในตัว
     async function loadCompanies() {
       const response = await fetch('/api/companies');
       const data = await response.json();
 
-      // คำนวณยอดรวมเครื่องที่ต้องซ่อม/รอเปลี่ยน จากทุกบริษัท เอาไปแสดงในการ์ดสรุป
+      // รวมยอดทุกบริษัทไว้โชว์ในการ์ดสรุปด้านบน
       let totalRepair = 0;
       let totalReplace = 0;
       data.forEach(company => {
@@ -78,18 +127,16 @@
       data.forEach(company => {
         const card = document.createElement('a');
         card.href = `units.html?company=${encodeURIComponent(company.client_company)}`;
-        card.className = 'bg-white rounded-lg shadow p-5 hover:shadow-lg transition block border-l-4 border-sky-500';
+        card.className = 'hover-lift bg-white rounded-lg shadow p-5 transition block border-l-4 border-sky-500';
 
+        // ใส่ badge เตือนตามสถานะเครื่องของบริษัทนั้น
         let badges = '';
-
         if (company.needRepairCount > 0) {
           badges += `<span class="bg-red-100 text-red-700 text-xs font-semibold px-2 py-1 rounded-full block mb-1">ต้องซ่อม ${company.needRepairCount} เครื่อง</span>`;
         }
-
         if (company.needReplaceCount > 0) {
           badges += `<span class="bg-yellow-100 text-yellow-700 text-xs font-semibold px-2 py-1 rounded-full block mb-1">รอเปลี่ยน ${company.needReplaceCount} เครื่อง</span>`;
         }
-
         if (company.needRepairCount === 0 && company.needReplaceCount === 0) {
           badges = `<span class="bg-green-100 text-green-700 text-xs font-semibold px-2 py-1 rounded-full">ปกติทั้งหมด</span>`;
         }
@@ -124,7 +171,7 @@
         return;
       }
 
-      document.getElementById('userInfo').textContent = `${user.full_name} (แอดมิน)`;
+      document.getElementById('userInfo').textContent = user.full_name;
       loadCompanies();
     }
 

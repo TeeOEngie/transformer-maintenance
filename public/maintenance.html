@@ -4,39 +4,56 @@
   <meta charset="UTF-8">
   <title>ประวัติซ่อมบำรุง</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Kanit', sans-serif; }
+    .hover-lift {
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .hover-lift:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    }
+  </style>
 </head>
 <body class="bg-sky-50 min-h-screen">
 
-  <!-- ===== header ด้านบน ===== -->
-  <!-- หน้านี้ไม่ใส่ปุ่มออกจากระบบ แต่ยังโชว์ชื่อคนที่ login อยู่ -->
+  <!-- หน้านี้ก็อยู่ลึก (กดจากเครื่องแอร์เข้ามา) เลยใช้ header แบบเดียวกับ units.html -->
   <header class="bg-black text-sky-400 p-6 shadow-md border-b-4 border-sky-500 flex justify-between items-center">
     <div>
       <a href="javascript:history.back()" class="text-gray-300 text-sm hover:underline">&larr; กลับหน้าเครื่องปรับอากาศ</a>
       <h1 id="pageTitle" class="text-2xl font-bold mt-1">ประวัติซ่อมบำรุง</h1>
     </div>
-    <div class="text-right">
-      <p id="userInfo" class="text-sm text-gray-300">กำลังโหลด...</p>
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-full bg-sky-500 flex items-center justify-center font-bold text-black flex-shrink-0">
+        <span id="userInitial">-</span>
+      </div>
+      <div>
+        <p id="userInfo" class="text-sm font-medium text-white">กำลังโหลด...</p>
+        <p id="userRole" class="text-xs text-gray-300"></p>
+      </div>
     </div>
   </header>
 
   <main class="max-w-4xl mx-auto p-6">
 
-    <!-- ===== หัวข้อ + ปุ่มบันทึกงานซ่อม ===== -->
     <div class="flex justify-between items-center mb-4">
       <h2 class="text-xl font-semibold text-slate-800">ประวัติการซ่อมบำรุงทั้งหมด</h2>
-      <button onclick="openAddModal()" class="bg-sky-500 hover:bg-sky-600 text-black font-semibold px-4 py-2 rounded-lg shadow">
+      <button onclick="openAddModal()" class="bg-sky-500 hover:bg-sky-600 text-black font-semibold px-4 py-2 rounded-lg shadow transition">
         + บันทึกงานซ่อม
       </button>
     </div>
 
-    <!-- การ์ดประวัติซ่อมจะถูกสร้างเพิ่มตรงนี้ด้วย js -->
+    <!-- การ์ดประวัติซ่อมแต่ละใบ โผล่มาตรงนี้ผ่าน js -->
     <div id="recordList" class="space-y-3"></div>
 
     <p id="emptyMsg" class="text-gray-400 text-center py-8 hidden">ยังไม่มีประวัติการซ่อมบำรุง</p>
 
   </main>
 
-  <!-- ===== modal ฟอร์มบันทึกงานซ่อม ===== -->
+  <!-- modal ฟอร์มบันทึกงานซ่อม -->
   <div id="formModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
       <h3 class="text-lg font-semibold mb-4">บันทึกงานซ่อมบำรุงใหม่</h3>
@@ -57,7 +74,7 @@
         <div>
           <label class="block text-sm text-gray-600 mb-1">ช่างผู้ซ่อม</label>
           <select id="formTechnician" class="w-full border rounded px-3 py-2">
-            <!-- รายชื่อช่างจะถูกเติมตรงนี้ด้วย js ตอนเปิดฟอร์ม -->
+            <!-- รายชื่อช่างจะถูกเติมตรงนี้ทุกครั้งที่เปิดฟอร์ม -->
           </select>
         </div>
         <div>
@@ -78,14 +95,14 @@
 
         <div class="flex justify-end gap-2 pt-2">
           <button type="button" onclick="closeModal()" class="px-4 py-2 rounded border">ยกเลิก</button>
-          <button type="submit" class="px-4 py-2 rounded bg-sky-500 text-black font-semibold hover:bg-sky-600">บันทึก</button>
+          <button type="submit" class="px-4 py-2 rounded bg-sky-500 text-black font-semibold hover:bg-sky-600 transition">บันทึก</button>
         </div>
       </form>
     </div>
   </div>
 
   <script>
-    // ดึง id กับรหัสเครื่องจาก url ที่ส่งมาจากหน้า units
+    // เอา id กับรหัสเครื่องจาก url ที่ส่งมาจากหน้าเครื่องแอร์
     const urlParams = new URLSearchParams(window.location.search);
     const acUnitId = urlParams.get('id');
     const unitCode = urlParams.get('code');
@@ -94,7 +111,7 @@
 
     document.getElementById('pageTitle').textContent = `ประวัติซ่อมบำรุง: ${unitCode || ''}`;
 
-    // ===== โหลดรายชื่อช่างมาใส่ dropdown =====
+    // โหลดรายชื่อช่างมาใส่ dropdown ทุกครั้งที่เปิดฟอร์ม กันกรณีมีช่างใหม่เพิ่มมาทีหลัง
     async function loadTechnicians() {
       const response = await fetch('/api/technicians');
       const data = await response.json();
@@ -110,7 +127,6 @@
       });
     }
 
-    // ===== โหลดประวัติซ่อมของเครื่องนี้ =====
     async function loadRecords() {
       const response = await fetch(`/api/maintenance/${acUnitId}`);
       const data = await response.json();
@@ -126,18 +142,18 @@
       emptyMsg.classList.add('hidden');
 
       data.forEach(item => {
-        // สีป้ายประเภทงาน แยกกัน 3 สี ไม่ใช้ฟ้าเพราะเป็นสีธีมเว็บไปแล้ว
-        let typeColor = 'bg-orange-100 text-orange-700'; // ตรวจเช็ค
+        // สีป้ายประเภทงาน แยก 3 สีไม่ซ้ำกับสีอื่นในระบบ
+        let typeColor = 'bg-orange-100 text-orange-700';
         if (item.maintenance_type === 'ซ่อมภายใน') typeColor = 'bg-red-100 text-red-700';
         else if (item.maintenance_type === 'ซ่อมภายนอก') typeColor = 'bg-purple-100 text-purple-700';
 
         let statusColor = item.status === 'เสร็จสิ้น' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700';
 
-        // ชื่อช่างดึงมาจาก profiles ที่ join มาด้วยตอนเรียก api ถ้าไม่มีให้โชว์ขีด
+        // ชื่อช่างมาจาก profiles ที่ join มาตอนเรียก api ถ้าไม่มีก็โชว์ขีดไว้
         const technicianName = item.profiles ? item.profiles.full_name : '-';
 
         const card = document.createElement('div');
-        card.className = 'bg-white rounded-lg shadow p-4';
+        card.className = 'hover-lift bg-white rounded-lg shadow p-4 transition';
         card.innerHTML = `
           <div class="flex justify-between items-start mb-2">
             <div>
@@ -161,7 +177,7 @@
 
     function openAddModal() {
       document.getElementById('maintenanceForm').reset();
-      loadTechnicians(); // โหลดรายชื่อช่างใหม่ทุกครั้งที่เปิดฟอร์ม
+      loadTechnicians();
       document.getElementById('formModal').classList.remove('hidden');
     }
 
@@ -169,7 +185,6 @@
       document.getElementById('formModal').classList.add('hidden');
     }
 
-    // ===== บันทึกฟอร์มงานซ่อมใหม่ =====
     document.getElementById('maintenanceForm').addEventListener('submit', async (e) => {
       e.preventDefault();
 
@@ -193,14 +208,12 @@
       loadRecords();
     });
 
-    // ===== ลบประวัติซ่อม (เฉพาะ admin) =====
     async function deleteRecord(id) {
       if (!confirm('ยืนยันการลบประวัติซ่อมนี้หรือไม่?')) return;
       await fetch(`/api/maintenance/${id}`, { method: 'DELETE' });
       loadRecords();
     }
 
-    // ===== เช็ค login =====
     async function checkAuth() {
       const response = await fetch('/api/me');
       if (!response.ok) {
@@ -210,7 +223,9 @@
       const user = await response.json();
       currentUserRole = user.role;
 
-      document.getElementById('userInfo').textContent = `${user.full_name} (${user.role === 'admin' ? 'แอดมิน' : 'ช่างซ่อมบำรุง'})`;
+      document.getElementById('userInfo').textContent = user.full_name;
+      document.getElementById('userRole').textContent = user.role === 'admin' ? 'แอดมิน' : 'ช่างซ่อมบำรุง';
+      document.getElementById('userInitial').textContent = user.role === 'admin' ? 'A' : 'T';
 
       loadRecords();
     }
