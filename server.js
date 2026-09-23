@@ -36,6 +36,21 @@ app.use(cookieSession({
   sameSite: 'lax'
 }));
 
+// [ใหม่] ด่านตรวจ: ทุก API ต้อง login ก่อน ยกเว้นตัว login/logout เอง
+// วางไว้ก่อน route ทั้งหมด จะได้คุมทุกตัวในที่เดียว (route ใหม่ในอนาคตก็โดนตรวจอัตโนมัติ)
+app.use('/api', (req, res, next) => {
+  // req.path ตรงนี้ไม่มีคำว่า /api นำหน้า เช่น /api/login จะเป็น /login
+  if (req.path === '/login' || req.path === '/logout') {
+    return next();
+  }
+
+  if (!req.session || !req.session.user) {
+    return res.status(401).json({ error: 'กรุณาเข้าสู่ระบบก่อน' });
+  }
+
+  next();
+});
+
 // ==================== API บริษัทลูกค้า ====================
 
 app.get('/api/companies', async (req, res) => {
@@ -206,6 +221,7 @@ app.get('/api/maintenance-feed', async (req, res) => {
     .from('maintenance_records')
     // ac_units!inner เพื่อให้กรองด้วยคอลัมน์ของ ac_units ได้
     .select('*, ac_units!inner(code, client_company), profiles(full_name)')
+    // เรียงตามวันที่ซ่อมก่อน (ใหม่ → เก่า) วันเดียวกันค่อยเรียงตามเวลาที่บันทึก
     .order('maintenance_date', { ascending: false })
     .order('created_at', { ascending: false })
     .limit(50);
@@ -830,6 +846,6 @@ app.get('/api/me', (req, res) => {
 // ==================== เริ่มรัน Server ====================
 
 app.listen(PORT, () => {
-  // มีคำว่า v4 ไว้เช็คว่ากำลังรันไฟล์เวอร์ชันล่าสุดจริง
-  console.log(`Server กำลังทำงานที่ http://localhost:${PORT} (v4 รายการราคา)`);
+  // มีคำว่า v5 ไว้เช็คว่ากำลังรันไฟล์เวอร์ชันล่าสุดจริง
+  console.log(`Server กำลังทำงานที่ http://localhost:${PORT} (v5 ด่านตรวจ login)`);
 });
