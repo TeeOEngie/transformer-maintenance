@@ -8,8 +8,8 @@ const supabase = require('./supabaseClient');
 
 // เรียกใช้ bcrypt สำหรับตรวจสอบรหัสผ่าน
 const bcrypt = require('bcrypt');
-// เรียกใช้ express-session สำหรับจดจำสถานะว่า login แล้ว
-const session = require('express-session');
+// เก็บข้อมูล login ไว้ในคุกกี้ (ใช้ได้บน Vercel ที่ server ไม่ได้เปิดค้างตลอด)
+const cookieSession = require('cookie-session');
 
 // บอกให้ express เปิดให้เข้าถึงไฟล์ในโฟลเดอร์ public ได้โดยตรง
 app.use(express.static('public'));
@@ -25,11 +25,17 @@ app.use('/api', (req, res, next) => {
 });
 
 // ตั้งค่า session ให้ express ใช้งาน
-app.use(session({
-  secret: 'ac-maintenance-secret-key',
-  resave: false,
-  saveUninitialized: false,
-  cookie: { maxAge: 1000 * 60 * 60 * 8 }
+// Vercel ส่ง request ผ่าน proxy ต้องเปิดบรรทัดนี้ ไม่งั้นคุกกี้ secure จะไม่ถูกส่ง
+app.set('trust proxy', 1);
+
+app.use(cookieSession({
+  name: 'cooltrack_session',
+  // กุญแจเซ็นคุกกี้ อ่านจาก Environment Variable (บนเครื่องตัวเองถ้าไม่ได้ตั้ง จะใช้ค่าสำรอง)
+  keys: [process.env.SESSION_SECRET || 'ac-maintenance-secret-key'],
+  maxAge: 1000 * 60 * 60 * 8,                     // อยู่ได้ 8 ชั่วโมง
+  httpOnly: true,                                 // JavaScript ในหน้าเว็บอ่านคุกกี้นี้ไม่ได้
+  secure: process.env.NODE_ENV === 'production',  // บน Vercel ส่งผ่าน https เท่านั้น
+  sameSite: 'lax'
 }));
 
 // ==================== API บริษัทลูกค้า ====================
@@ -399,9 +405,9 @@ app.post('/api/login', async (req, res) => {
 });
 
 app.post('/api/logout', (req, res) => {
-  req.session.destroy(() => {
-    res.json({ message: 'Logout สำเร็จ' });
-  });
+  // cookie-session ไม่มี destroy() ใช้วิธีล้างค่าเป็น null แทน
+  req.session = null;
+  res.json({ message: 'Logout สำเร็จ' });
 });
 
 app.get('/api/me', (req, res) => {
