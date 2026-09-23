@@ -22,7 +22,7 @@
   <div class="flex-1">
     <header class="bg-white shadow-md p-6 flex justify-between items-center border-b-4 border-sky-500">
       <div>
-        <h1 class="text-xl font-bold text-slate-800">❄️ ระบบจัดการงานซ่อมเครื่องปรับอากาศ</h1>
+        <h1 class="text-xl font-bold text-slate-800">❄️ ระบบเก็บประวัติการซ่อมเครื่องปรับอากาศ</h1>
         <p class="text-sm text-gray-500">บริษัท คูลเทค แอร์เซอร์วิส จำกัด</p>
       </div>
       <div class="text-right">
@@ -33,18 +33,46 @@
       </div>
     </header>
 
-        <main class="max-w-5xl mx-auto p-6">
+    <main class="max-w-5xl mx-auto p-6">
 
-      <!-- ===== หน้าข่าวสารและประกาศ (รายละเอียดจะเพิ่มทีหลัง) ===== -->
       <h1 class="text-xl font-bold text-slate-800 mb-4">ข่าวสารและประกาศ</h1>
 
-      <div id="newsList" class="space-y-3">
-        <p class="text-gray-400 text-center py-12">ยังไม่มีข่าวสาร</p>
+      <div class="bg-white rounded-lg shadow p-5">
+        <h2 class="text-lg font-semibold text-slate-800 mb-3">📅 แผนตรวจเช็คที่ใกล้ถึงนี้</h2>
+        <div id="scheduleList" class="space-y-2"></div>
+        <p id="emptyMsg" class="text-gray-400 text-sm hidden">ยังไม่มีแผนตรวจเช็คที่ประกาศไว้</p>
       </div>
 
     </main>
+  </div>
 
   <script>
+    // ดึงแผนตรวจเช็คที่ประกาศไว้ มาแสดงในหน้าหลัก
+    async function loadSchedules() {
+      const response = await fetch('/api/schedules');
+      const data = await response.json();
+
+      const scheduleList = document.getElementById('scheduleList');
+      const emptyMsg = document.getElementById('emptyMsg');
+      scheduleList.innerHTML = '';
+
+      if (data.length === 0) {
+        emptyMsg.classList.remove('hidden');
+        return;
+      }
+      emptyMsg.classList.add('hidden');
+
+      data.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'bg-sky-50 border border-sky-200 rounded-lg p-3';
+        card.innerHTML = `
+          <p class="font-semibold text-slate-800">${item.client_company}</p>
+          <p class="text-sm text-sky-700">วันที่ ${item.scheduled_date}</p>
+          ${item.note ? `<p class="text-sm text-gray-500 mt-1">${item.note}</p>` : ''}
+        `;
+        scheduleList.appendChild(card);
+      });
+    }
 
     async function checkAuth() {
       const response = await fetch('/api/me');
@@ -62,6 +90,7 @@
       }
 
       document.getElementById('userInfo').textContent = `${user.full_name} (แอดมิน)`;
+      loadSchedules();
     }
 
     async function logout() {
